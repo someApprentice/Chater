@@ -5,15 +5,17 @@ import App from './App';
 import store from './store';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { CookiesProvider } from 'react-cookie';
+
+const jssStyles = document.querySelector('#jss-server-side');
+if (jssStyles) {
+  jssStyles.parentElement!.removeChild(jssStyles);
+}
 
 ReactDOM.hydrate(
   <React.StrictMode>
     <Provider store={ store }>
       <Router>
-        <CookiesProvider>
-          <App />
-        </CookiesProvider>
+        <App />
       </Router>
     </Provider>
   </React.StrictMode>,
