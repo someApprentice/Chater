@@ -62,6 +62,8 @@ app.get('*', (req: Request, res: Response) => {
       return res.sendStatus(500);
     }
 
+    user.hash = req.cookies.hash;
+
     store.dispatch(authenticate(user));
 
     let date = new Date();
