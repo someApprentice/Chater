@@ -14,7 +14,7 @@ export function AuthenticatedRoute(props: RouteProps) {
       { ...rest }
       render={ (p: RouteComponentProps) => (
         isAuthenticated
-          ? (children)
+          ? (render ? render(p) : children)
           : (<RedirectWithStatus status={ 302 } to={ { pathname: '/', state: { from: p.location } } } { ...p } />)
       ) }
     />
@@ -31,7 +31,7 @@ export function UnauthenticatedRoute(props: RouteProps) {
       { ...rest }
       render={ (p: RouteComponentProps) => (
         !isAuthenticated
-          ? (children)
+          ? (render ? render(p) : children)
           : (<RedirectWithStatus status={ 302 } to={ { pathname: '/', state: { from: p.location } } } { ...p } />)
       ) }
     />
