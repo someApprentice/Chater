@@ -11,12 +11,15 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../../store';
 import { logout } from '../slice';
 
+import socket from '../../../services/socket';
+
 export default function LogOut() {
   let history = useHistory();
 
   let dispatch = useDispatch();
 
   let isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  let user = useSelector((state: RootState) => state.auth.user);
   let isPending = useSelector((state: RootState) => state.auth.isPending);
   let error = useSelector((state: RootState) => state.auth.error);
 
@@ -33,7 +36,13 @@ export default function LogOut() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
 
+    let hash = user!.hash!
+
     await dispatch(logout());
+
+    socket.emit('leave', { hash }, (ack: any) => {
+      // ack
+    })
   };
 
   return (

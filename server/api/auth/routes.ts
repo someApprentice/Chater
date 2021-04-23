@@ -81,13 +81,6 @@ router.post('/login', async (req: Request, res: Response) => {
     return res.sendStatus(500);
   }
 
-  // user = {
-  //   id: 'asdufh;a',
-  //   email: email as string,
-  //   name: email.split('@').shift() as string,
-  //   hash: password as string
-  // };
-
   let date = new Date();
   let expires = new Date(date.setMonth(date.getMonth() + 1));
 

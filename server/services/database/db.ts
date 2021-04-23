@@ -4,10 +4,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 
 import usersReducer from './slices/users';
+import dialogsReducer from './slices/dialogs';
+import messagesReducer from './slices/messages';
 
 const store = configureStore({
   reducer: {
-    users: usersReducer
+    users: usersReducer,
+    dialogs: dialogsReducer,
+    messages: messagesReducer
   }
 });
 

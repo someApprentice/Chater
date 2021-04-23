@@ -73,8 +73,8 @@ export const registrate = createAsyncThunk<
 );
 
 export const logout = createAsyncThunk<
-  void,
-  void,
+  undefined,
+  undefined,
   { rejectValue: AuthError }
 >(
   'auth/logout',
