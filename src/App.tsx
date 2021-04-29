@@ -22,6 +22,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { RootState } from './store';
 import { pushDialog, pushMessage, getPublicDialog } from './features/messenger/slice';
+import { push as pushUser } from './features/users/slice';
 
 import { UnauthenticatedRoute, AuthenticatedRoute, RouteWithStatus } from './utils/router';
 
@@ -107,6 +108,12 @@ export default function App() {
       dispatch(getPublicDialog());
     }
   }, [!!publicDialog]);
+
+  useEffect(() => {
+    if (!!user) {
+      dispatch(pushUser(user));
+    }
+  }, [!!user]);
 
   useEffect(() => {
     socket.connect();
