@@ -1,20 +1,31 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 
 import Drawer from '@material-ui/core/Drawer';
+import InputBase from '@material-ui/core/InputBase';
 import IconButton from '@material-ui/core/IconButton';
+import SearchIcon from '@material-ui/icons/Search';
 import Divider from '@material-ui/core/Divider';
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem';
 import PublicIcon from '@material-ui/icons/Public';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import ForumIcon from '@material-ui/icons/Forum';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Link from '@material-ui/core/Link';
-import { Link as RouterLink } from 'react-router-dom';
+import { green } from '@material-ui/core/colors';
+
+import { Link as RouterLink, useHistory } from 'react-router-dom';
 
 import clsx from 'clsx';
+
+import { useFormik } from 'formik';
+
+import * as yup from 'yup';
+
+import axios, { AxiosResponse } from 'axios';
 
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -24,6 +35,7 @@ import { getUsers } from '../../users/slice';
 
 import DialogComponent from './Dialog';
 
+import { User } from '../../../models/user';
 import { Dialog } from '../../../models/dialog';
 
 export const drawerWidth = 240;
@@ -59,14 +71,38 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     padding: '0 8px',
     ...theme.mixins.toolbar,
   },
+  searchForm: {
+    display: 'flex',
+    alignItems: 'center',
+    boxShadow: 'none',
+  },
+  searchInput: {
+    fontSize: '.9rem',
+  },
   publicDialogLink: {
     display: 'flex',
     alignItems: 'center',
   },
   publicDialogListItem: {
     maxWidth: '0',
-  }
+  },
+  name: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  searchResult: {
+    '&:hover $startDialog': {
+      color: green[500],
+    },
+  },
+  startDialog: {},
 }));
+
+const validationSchema = yup.object({
+  query: yup
+    .string()
+    .required('Query is required')
+});
 
 export type DialogsProps = {
   isOpen: boolean,
@@ -80,6 +116,41 @@ export default function Dialogs({
   const classes = useStyles();
 
   let dispatch = useDispatch();
+
+  let history = useHistory();
+
+  const formik = useFormik({
+    initialValues: {
+      query: ''
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      let q = values.query;
+
+      let response: AxiosResponse | undefined;
+
+      try {
+        response = await axios.get(
+          '/api/users/search',
+          {
+            params: {
+              q
+            },
+          }
+        );
+      } catch (err) {
+        console.error(err);
+      }
+
+      let results = response!.data as User[];
+
+      setSearchResults(results);
+    }
+  });
+
+  let [ isSearching, setIsSearching ] = useState(false);
+
+  let [ searchResults, setSearchResults ] = useState([] as User[]);
 
   let user = useSelector((state: RootState) => state.auth.user);
 
@@ -110,6 +181,97 @@ export default function Dialogs({
     dispatch(getUsers({ ids: privateDialogsPartyIds }));
   }, [JSON.stringify(privateDialogsPartyIds)]);
 
+  useEffect(() => {
+    setIsSearching(formik.dirty && !!formik.submitCount);
+  }, [formik.dirty && !!formik.submitCount]);
+
+  async function onDialogStart(id: string) {
+    let response: AxiosResponse | undefined;
+
+    try {
+      response = await axios.post(
+        '/api/messenger/dialog/private',
+        null,
+        {
+          params: {
+            id
+          },
+          headers: {
+            Authorization: `Bearer ${ user!.hash }`
+          }
+        }
+      );
+    } catch (err) {
+      console.error(err);
+    }
+
+    let dialog = response!.data as Dialog;
+
+    history.replace(`/dialog/${ dialog.id }`);
+  }
+
+  const dialogList = (
+    <>
+      <List>
+        <Link
+          component={ RouterLink }
+          to="/"
+          color="inherit"
+          className={ classes.publicDialogLink }
+        >
+          <ListItem button>
+              <ListItemIcon><PublicIcon /></ListItemIcon>
+
+              { isOpen ? <ListItemText primary="Public Dialog" /> : null }
+          </ListItem>
+        </Link>
+      </List>
+
+      <Divider />
+
+      <List>
+        {
+          dialogs.map((dialog: Dialog) => (
+            <Link
+              component={ RouterLink }
+              to={ `/dialog/${ dialog.id }` }
+              color="inherit"
+              key={ dialog.id }
+            >
+              <ListItem button>
+                  <DialogComponent dialog={ dialog } />
+              </ListItem>
+            </Link>
+          ))
+        }
+      </List>
+    </>
+  );
+
+  const searchResultList = (
+    <>
+      <List>
+        {
+          searchResults.map((user: User) => (
+            <ListItem
+              onClick={ () => { onDialogStart(user.id) } }
+              button
+              key={ user.id }
+              className={ classes.searchResult }
+            >
+              <ListItemText primary={ user.name } className={ classes.name } />
+              <ListItemIcon>
+                <ForumIcon
+                  className={ classes.startDialog }
+                />
+              </ListItemIcon>
+            </ListItem>
+          ))
+        }
+      </List>
+    </>
+  );
+
   return (
     <Drawer
       variant="permanent"
@@ -119,6 +281,22 @@ export default function Dialogs({
       open={ isOpen }
     >
       <div className={ classes.toolbar } >
+        <form className={ classes.searchForm } onSubmit={ formik.handleSubmit } >
+          <InputBase
+            id="query"
+            name="query"
+            value={ formik.values.query }
+            onChange={ formik.handleChange }
+            placeholder="Search for users..."
+            className={ classes.searchInput }
+          />
+          <IconButton type="submit">
+            <SearchIcon />
+          </IconButton>
+        </form>
+
+        <Divider orientation="vertical" />
+
         <IconButton onClick={ handleDialogsClose }>
           <ChevronLeftIcon />
         </IconButton>
@@ -126,39 +304,11 @@ export default function Dialogs({
 
       <Divider />
 
-      <List>
-        <ListItem button>
-          <Link
-            component={ RouterLink }
-            to="/"
-            color="inherit"
-            className={ classes.publicDialogLink }
-          >
-            <ListItemIcon><PublicIcon /></ListItemIcon>
-
-            { isOpen ? <ListItemText primary="Public Dialog" /> : null }
-          </Link>
-        </ListItem>
-      </List>
-
-      <Divider />
-
-      <List>
-        {
-          dialogs.map((dialog: Dialog) => (
-            <ListItem button>
-              <Link
-                key={ dialog.id }
-                component={ RouterLink }
-                to={ `/dialog/${ dialog.id }` }
-                color="inherit"
-              >
-                <DialogComponent dialog={ dialog } />
-              </Link>
-            </ListItem>
-          ))
-        }
-      </List>
+      {
+        !isSearching
+          ? dialogList
+          : searchResultList
+      }
     </Drawer>
   );
 }

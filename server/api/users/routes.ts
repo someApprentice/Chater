@@ -48,4 +48,25 @@ router.get('/users', (req: Request, res: Response) => {
     .json(us);
 });
 
+router.get('/search', (req: Request, res: Response) => {
+  let query = req.query.q?.toString() || '';
+
+  if (!query)
+    return res.status(400).send('Bad Request');
+
+  let users = select(store.getState(), (user: User) => user.name.includes(query)); 
+
+  let us = users.map((user: User) => {
+    // omit hash property
+    const { hash, ...u } = user;
+
+    return u;
+  });
+
+  return res
+    .status(200)
+    .type('json')
+    .json(us);
+});
+
 export default router;

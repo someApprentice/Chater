@@ -136,6 +136,44 @@ router.get('/dialogs/private', passport.authenticate('jwt', { session: false }),
     .json(dialogs);
 });
 
+router.post('/dialog/private', passport.authenticate('jwt', { session: false }), (req: Request, res: Response) => {
+  let id = req.query.id?.toString() || '';
+
+  if (!id)
+    return res.status(400).send('Bad Request');
+
+  let user: User = req.user as User;
+
+  let dialog = find(store.getState(), (dialog: Dialog) => dialog.type === 'private' && dialog.party!.includes(id) && dialog.party!.includes(user.id));
+
+  if (dialog) {
+    return res
+      .status(200)
+      .type('json')
+      .json(dialog);
+  }
+
+  dialog = {
+    id: nanoid(),
+    type: 'private',
+    updated_at: (new Date()).getTime() / 1000,
+    messages_count: 0,
+    party: [ user.id, id ]
+  };
+
+  store.dispatch(insertDialog({ ...dialog }));
+
+  io.sockets
+    .to(user.id)
+    .to(id)
+    .emit('private dialog update', dialog);
+
+  return res
+    .status(200)
+    .type('json')
+    .json(dialog);
+});
+
 router.get('/dialog/public', (req: Request, res: Response) => {
   let dialog = find(store.getState(), (dialog: Dialog) => dialog.type === 'public');
 
