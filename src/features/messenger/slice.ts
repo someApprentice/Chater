@@ -182,6 +182,17 @@ const slice = createSlice({
       if (!found) {
         state.messages.push(message);
       }
+    },
+    reset(state: MessengerState) {
+      let publicDialog = state.dialogs.find((dialog: Dialog) => dialog.type === 'public')!;
+
+      let publicMessages = state.messages.filter((message: Message) => message.dialog === publicDialog!.id);
+
+      return {
+        ...initialState,
+        dialogs: [ publicDialog ],
+        messages: publicMessages
+      };
     }
   },
   extraReducers: (builder) => {
@@ -338,4 +349,4 @@ const slice = createSlice({
 
 export default slice.reducer;
 
-export const { pushDialog, pushMessage } = slice.actions;
+export const { pushDialog, pushMessage, reset } = slice.actions;

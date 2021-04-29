@@ -10,6 +10,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { RootState } from '../../../store';
 import { logout } from '../slice';
+import { reset } from '../../messenger/slice';
 
 import socket from '../../../services/socket';
 
@@ -39,6 +40,8 @@ export default function LogOut() {
     let hash = user!.hash!
 
     await dispatch(logout());
+
+    dispatch(reset());
 
     socket.emit('leave', { hash }, (ack: any) => {
       // ack
