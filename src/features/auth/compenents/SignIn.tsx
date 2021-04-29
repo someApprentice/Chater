@@ -9,7 +9,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useHistory, Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -49,11 +49,8 @@ const validationSchema = yup.object({
 export default function SignIn() {
   const classes = useStyles();
 
-  let history = useHistory();
-
   let dispatch = useDispatch();
 
-  let isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   let isPending = useSelector((state: RootState) => state.auth.isPending);
   let error = useSelector((state: RootState) => state.auth.error);
 
@@ -74,14 +71,10 @@ export default function SignIn() {
   }); 
 
   useEffect(() => {
-    if (!isPending && !error && isAuthenticated) {
-      history.replace('/');
-    }
-
     if (!isPending && !!error) {
       formik.setFieldError('password', error.data);
     }
-  }, [isAuthenticated, isPending, error]);
+  }, [isPending, error]);
 
   return (
     <Container component="main" maxWidth="xs">
