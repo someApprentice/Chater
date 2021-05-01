@@ -183,6 +183,11 @@ export default function Dialogs({
 
   useEffect(() => {
     setIsSearching(formik.dirty && !!formik.submitCount);
+
+    // reset form after erased field
+    if (!formik.dirty && !!formik.submitCount) {
+      formik.resetForm();
+    }
   }, [formik.dirty && !!formik.submitCount]);
 
   async function onDialogStart(id: string) {
