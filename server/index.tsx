@@ -8,6 +8,9 @@ import { Server } from 'socket.io';
 import cookieParser from 'cookie-parser';
 
 import db from './services/database/db';
+import { find as findDialog } from './services/database/slices/dialogs';
+import { find as findUser } from './services/database/slices/users';
+
 import { verify } from 'jsonwebtoken';
 
 import { Provider } from 'react-redux';
@@ -40,7 +43,6 @@ import { Dialog } from '../src/models/dialog';
 import * as yup from 'yup';
 
 import { populate } from './populate';
-import s from './services/database/db'
 
 const PORT = process.env.PORT || 8080;
 const SECRET = process.env.SECRET;
@@ -70,7 +72,7 @@ app.get('*', (req: Request, res: Response) => {
     preloadedState: {}
   });
 
-  let publicDialog = db.getState().dialogs.dialogs.find((dialog: Dialog) => (
+  let publicDialog = findDialog(db.getState(), (dialog: Dialog) => (
     dialog.type === 'public'
   ))!;
 
@@ -88,15 +90,21 @@ app.get('*', (req: Request, res: Response) => {
       return res.sendStatus(500);
     }
 
-    user.hash = req.cookies.hash;
+    if (findUser(db.getState(), (u: User) => u.id === user.id)) {
+      user.hash = req.cookies.hash;
 
-    store.dispatch(authenticate(user));
+      store.dispatch(authenticate(user));
 
-    let date = new Date();
+      let date = new Date();
 
-    for (let key in req.cookies) {
-      /* @TODO Set secure flag in production mode (SSL) */
-      res.cookie(key, req.cookies[key], { expires: new Date(date.setMonth(date.getMonth() + 1)), secure: false, httpOnly: true });
+      for (let key in req.cookies) {
+        /* @TODO Set secure flag in production mode (SSL) */
+        res.cookie(key, req.cookies[key], { expires: new Date(date.setMonth(date.getMonth() + 1)), secure: false, httpOnly: true });
+      }
+    } else {
+      for (let key in req.cookies) {
+        res.clearCookie(key);
+      }
     }
   }
 
