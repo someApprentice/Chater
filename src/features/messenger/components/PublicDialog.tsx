@@ -8,6 +8,9 @@ import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Link from '@material-ui/core/Link';
+
+import { Link as RouterLink } from 'react-router-dom';
 
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -75,6 +78,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     [theme.breakpoints.down('lg')]: {
       display: 'none',
     },
+  },
+  authenticationNote: {
+    textAlign: 'center',
+    [theme.breakpoints.up('lg')]: {
+      padding: theme.spacing(2),
+    }
   }
 }));
 
@@ -121,7 +130,12 @@ const PublicDialog = forwardRef<HTMLUListElement, PropsWithChildren<DialogProps>
         }
       </div>
 
-      { isAuthenticated ? <DialogForm user={ user! } url={ '/api/messenger/message/public' } /> : null }
+      { isAuthenticated
+        ? <DialogForm user={ user! } url={ '/api/messenger/message/public' } />
+        : <div className={ clsx(classes.authenticationNote) }>
+            Please <Link component={ RouterLink } to="/login">Log In</Link> or <Link component={ RouterLink } to="/registration">Registrate</Link> to send a message.
+          </div>
+      }
     </Container>
   );
 });
