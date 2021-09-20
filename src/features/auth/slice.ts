@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, AxiosError } from 'axios';
 
 import { User } from '../../models/user';
 
@@ -36,9 +36,16 @@ export const login = createAsyncThunk<
     try {
       response = await axios.post<User>('/api/auth/login', { email, password });
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue({
+          status: (err as AxiosError).response!.status as number,
+          data: (err as AxiosError).response!.data as string
+        });
+      }
+
       return rejectWithValue({
-        status: err.response.status,
-        data: err.response.data
+        status: 500,
+        data: err
       });
     }
 
@@ -62,9 +69,16 @@ export const registrate = createAsyncThunk<
     try {
       response = await axios.post<User>('/api/auth/registrate', { email, name, password });
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue({
+          status: (err as AxiosError).response!.status as number,
+          data: (err as AxiosError).response!.data as string
+        });
+      }
+
       return rejectWithValue({
-        status: err.response.status,
-        data: err.response.data
+        status: 500,
+        data: err
       });
     }
 
@@ -92,9 +106,16 @@ export const logout = createAsyncThunk<
     try {
       response = await axios.post<string>('/api/auth/logout', null, { headers: { Authorization: `Bearer ${ hash }` }, withCredentials: true });
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue({
+          status: (err as AxiosError).response!.status as number,
+          data: (err as AxiosError).response!.data as string
+        });
+      }
+
       return rejectWithValue({
-        status: err.response.status,
-        data: err.response.data
+        status: 500,
+        data: err
       });
     }
 

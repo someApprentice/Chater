@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, AxiosError } from 'axios';
 
 import { User } from '../../models/user';
 
@@ -29,9 +29,16 @@ export const getUser = createAsyncThunk<
     try {
       response = await axios.get<User>('/api/users/user', { params: { id } });
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue({
+          status: (err as AxiosError).response!.status as number,
+          data: (err as AxiosError).response!.data as string
+        });
+      }
+
       return rejectWithValue({
-        status: err.response.status,
-        data: err.response.data
+        status: 500,
+        data: err
       });
     }
 
@@ -53,9 +60,16 @@ export const getUsers = createAsyncThunk<
     try {
       response = await axios.get<User>('/api/users/users', { params: { ids } });
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue({
+          status: (err as AxiosError).response!.status as number,
+          data: (err as AxiosError).response!.data as string
+        });
+      }
+
       return rejectWithValue({
-        status: err.response.status,
-        data: err.response.data
+        status: 500,
+        data: err
       });
     }
 

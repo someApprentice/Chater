@@ -64,6 +64,7 @@ test('authenticated state', () => {
     preloadedState: {
       auth: {
         isAuthenticated: true,
+        isPending: false,
         user
       }
     } 

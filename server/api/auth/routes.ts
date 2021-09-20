@@ -33,7 +33,7 @@ router.post('/registrate', async (req: Request, res: Response) => {
   try {
     user = await registrate(email, name, password);
   } catch (err) {
-    if (err && err.stack && err.message) 
+    if (err && err instanceof Error && err.stack && err.message) 
       return res.status(400).send(`Bad Request: ${ err.message }`);
     
     return res.sendStatus(500);
@@ -75,7 +75,7 @@ router.post('/login', async (req: Request, res: Response) => {
   try {
     user = await login(email, password);
   } catch (err) {
-    if (err && err.stack && err.message)
+    if (err && err instanceof Error && err.stack && err.message)
       return res.status(404).send(err.message);
 
     return res.sendStatus(500);

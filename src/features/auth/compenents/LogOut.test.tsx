@@ -89,6 +89,7 @@ test('logout and redirect to the index page', async () => {
     preloadedState: {
       auth: {
         isAuthenticated: true,
+        isPending: false,
         user
       }
     }

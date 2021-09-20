@@ -51,6 +51,7 @@ test('authenticated route', () => {
     preloadedState: {
       auth: {
         isAuthenticated: true,
+        isPending: false,
         user
       }
     }

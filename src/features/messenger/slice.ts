@@ -2,7 +2,7 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { RootState } from '../../store';
 
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, AxiosError } from 'axios';
 
 import { Dialog } from '../../models/dialog';
 import { Message } from '../../models/message';
@@ -33,9 +33,16 @@ export const getPublicDialog = createAsyncThunk<
     try {
       response = await axios.get<Dialog>('/api/messenger/dialog/public');
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue({
+          status: (err as AxiosError).response!.status as number,
+          data: (err as AxiosError).response!.data as string
+        });
+      }
+
       return rejectWithValue({
-        status: err.response.status,
-        data: err.response.data
+        status: 500,
+        data: err
       });
     }
 
@@ -59,9 +66,16 @@ export const getPrivateDialog = createAsyncThunk<
     try {
       response = await axios.get<Dialog>('/api/messenger/dialog/private', { params, headers: { Authorization: `Bearer ${ user!.hash! }` } });
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue({
+          status: (err as AxiosError).response!.status as number,
+          data: (err as AxiosError).response!.data as string
+        });
+      }
+
       return rejectWithValue({
-        status: err.response.status,
-        data: err.response.data
+        status: 500,
+        data: err
       });
     }
 
@@ -83,9 +97,16 @@ export const getDialog = createAsyncThunk<
     try {
       response = await axios.get<Dialog>('/api/messenger/dialog', { params });
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue({
+          status: (err as AxiosError).response!.status as number,
+          data: (err as AxiosError).response!.data as string
+        });
+      }
+
       return rejectWithValue({
-        status: err.response.status,
-        data: err.response.data
+        status: 500,
+        data: err
       });
     }
 
@@ -107,9 +128,16 @@ export const getPrivateDialogs = createAsyncThunk<
     try {
       response = await axios.get<Dialog>('/api/messenger/dialogs/private', { headers: { Authorization: `Bearer ${ user!.hash! }` } });
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue({
+          status: (err as AxiosError).response!.status as number,
+          data: (err as AxiosError).response!.data as string
+        });
+      }
+
       return rejectWithValue({
-        status: err.response.status,
-        data: err.response.data
+        status: 500,
+        data: err
       });
     }
 
@@ -131,9 +159,16 @@ export const getMessages = createAsyncThunk<
     try {
       response = await axios.get<Message[]>('/api/messenger/messages', { params });
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue({
+          status: (err as AxiosError).response!.status as number,
+          data: (err as AxiosError).response!.data as string
+        });
+      }
+
       return rejectWithValue({
-        status: err.response.status,
-        data: err.response.data
+        status: 500,
+        data: err
       });
     }
 

@@ -84,7 +84,7 @@ app.get('*', (req: Request, res: Response) => {
     try {
       user = verify(req.cookies.hash, SECRET!) as User;
     } catch (err) {
-      if (err && err.message)
+      if (err && err instanceof Error && err.message)
         return res.status(400).send(err.message);
 
       return res.sendStatus(500);
