@@ -36,7 +36,7 @@ const config = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, './public/index.html'),
       filename: path.resolve(__dirname, './build/index.html'),
-      publicPath: ''
+      publicPath: '/'
     }),
     new CopyPlugin({
       patterns: [
