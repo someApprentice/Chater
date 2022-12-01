@@ -25,10 +25,6 @@ export default function LogOut() {
   let error = useSelector((state: RootState) => state.auth.error);
 
   useEffect(() => {
-    if (!isPending && !error && isAuthenticated) {
-      history.replace('/');
-    }
-
     if (!isPending && !!error) {
       // error
     }
