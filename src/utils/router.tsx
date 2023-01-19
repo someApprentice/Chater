@@ -12,11 +12,24 @@ export function AuthenticatedRoute(props: RouteProps) {
   return (
     <Route
       { ...rest }
-      render={ (p: RouteComponentProps) => (
-        isAuthenticated
-          ? (render ? render(p) : children)
-          : (<RedirectWithStatus status={ 302 } to={ { pathname: '/', state: { from: p.location } } } { ...p } />)
-      ) }
+      render={
+        (p: RouteComponentProps) => (
+          isAuthenticated
+            ? (render ? render(p) : children)
+            : (
+                <RedirectWithStatus
+                  status={ 302 }
+                  to={
+                    {
+                      pathname: '/',
+                      state: { from: p.location }
+                    }
+                  }
+                  { ...p }
+                />
+              )
+        )
+      }
     />
   );
 }
@@ -29,11 +42,24 @@ export function UnauthenticatedRoute(props: RouteProps) {
   return (
     <Route
       { ...rest }
-      render={ (p: RouteComponentProps) => (
-        !isAuthenticated
-          ? (render ? render(p) : children)
-          : (<RedirectWithStatus status={ 302 } to={ { pathname: '/', state: { from: p.location } } } { ...p } />)
-      ) }
+      render={
+          (p: RouteComponentProps) => (
+            !isAuthenticated
+              ? (render ? render(p) : children)
+              : (
+                  <RedirectWithStatus
+                    status={ 302 }
+                    to={
+                      {
+                        pathname: '/',
+                        state: { from: p.location }
+                      }
+                    }
+                    { ...p }
+                  />
+               )
+          )
+      }
     />
   );
 }
@@ -41,7 +67,8 @@ export function UnauthenticatedRoute(props: RouteProps) {
 export type RedirectWithStatusProps = { status: number } & RouteComponentProps & RedirectProps;
 
 export function RedirectWithStatus(props: RedirectWithStatusProps) {
-  if (props.staticContext) props.staticContext.statusCode = props.status;
+  if (props.staticContext)
+    props.staticContext.statusCode = props.status;
 
   return (
     <Redirect from={ props.from } to={ props.to } />
@@ -56,11 +83,14 @@ export function RouteWithStatus(props: RouteWithStatusProps) {
   return (
     <Route
       { ...rest }
-      render={ (p: RouteComponentProps) => {
-        if (p.staticContext) p.staticContext.statusCode = status;
+      render={
+        (p: RouteComponentProps) => {
+          if (p.staticContext)
+            p.staticContext.statusCode = status;
 
-        return children;
-      } }
+          return children;
+        }
+      }
     />
   );
 }

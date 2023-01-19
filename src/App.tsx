@@ -236,11 +236,17 @@ export default function App() {
             <PublicDialog id={ publicDialog!.id } />
           </Route>
 
-          <AuthenticatedRoute exact path="/dialog/:id" render={ (props: RouteComponentProps) => {
-            let { id } = props.match.params as { id: string };
+          <AuthenticatedRoute
+            exact
+            path="/dialog/:id"
+            render={
+              (props: RouteComponentProps) => {
+                let { id } = props.match.params as { id: string };
 
-            return <PrivateDialog id={ id } />
-          } }/>
+                return <PrivateDialog id={ id } />
+              }
+            }
+          />
 
           <UnauthenticatedRoute path='/login'>
             <SignIn />
