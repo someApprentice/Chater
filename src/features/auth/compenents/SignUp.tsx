@@ -76,8 +76,10 @@ export default function SignUp() {
 
       await dispatch(registrate({ email, name, password }));
 
-      setFieldValue('password', '', false);
-      setFieldValue('retryPassword', '', false);
+      if (error) {
+        setFieldValue('password', '', false);
+        setFieldValue('retryPassword', '', false);
+      }
     }
   }); 
 
@@ -174,7 +176,7 @@ export default function SignUp() {
           >
             { isPending ? <CircularProgress size={ 24 } color="inherit"/> : 'Sign Up' }
           </Button>
-          <Grid container justify="flex-end">
+          <Grid container justifyContent="flex-end">
             <Grid item>
               <Link component={ RouterLink } to="/login" variant="body2">
                 Already have an account? Sign In

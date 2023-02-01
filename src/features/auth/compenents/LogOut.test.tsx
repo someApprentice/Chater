@@ -1,10 +1,10 @@
 import React from 'react';
-import { act } from 'react-dom/test-utils';
 
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 
-import { createMount } from '@material-ui/core/test-utils';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { configureStore, nanoid } from '@reduxjs/toolkit';
 import { Provider, useSelector } from 'react-redux';
@@ -15,6 +15,8 @@ import { RootState } from '../../../store';
 import { Router } from 'react-router';
 import { Switch, Route } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
+
+import { AuthenticatedRoute } from '../../../utils/router';
 
 import LogOut from './LogOut';
 
@@ -36,12 +38,16 @@ function App() {
         <Route exact path='/'>
           <>Index Page</>
         </Route>
+
+        <AuthenticatedRoute path='/private'>
+          <>Private Page</>
+        </AuthenticatedRoute>
       </Switch>
     </>
   );
 }
 
-let user: User = {
+let u: User = {
   id: nanoid(),
   email: 'name@chater.com',
   name: 'Name',
@@ -55,19 +61,14 @@ const server = setupServer(
 );
 
 let store: ReturnType<typeof configureStore>;
-let mount: ReturnType<typeof createMount>;
+let user: ReturnType<typeof userEvent.setup>;
 
 beforeAll(() => {
   server.listen();
-  mount = createMount();
 });
 
 beforeEach(() => {
-  store = configureStore({
-    reducer: {
-      auth: authReducer
-    }
-  });
+  user = userEvent.setup();
 });
 
 afterEach(() => {
@@ -75,12 +76,11 @@ afterEach(() => {
 });
 
 afterAll(() => {
-  mount.cleanUp();
   server.close();
 });
 
-test('logout and redirect to the index page', async () => {
-  const history = createMemoryHistory({ initialEntries: ['/login'] });
+test('LogOut rendering', async () => {
+  const history = createMemoryHistory({ initialEntries: ['/private'] });
 
   let store = configureStore({
     reducer: {
@@ -90,12 +90,12 @@ test('logout and redirect to the index page', async () => {
       auth: {
         isAuthenticated: true,
         isPending: false,
-        user
+        user: u
       }
     }
   });
 
-  const wrapper = mount(
+  render(
     <Provider store={ store }>
       <Router history={ history }>
         <App />
@@ -103,19 +103,40 @@ test('logout and redirect to the index page', async () => {
     </Provider>
   );
 
-  expect(wrapper.find(LogOut)).toHaveLength(1);
+  expect(screen.getByLabelText('logout')).toBeInTheDocument();
+});
 
-  // https://github.com/enzymejs/enzyme/issues/308
-  // wrapper.find('button').simulate('click');
-  wrapper.find('button').simulate('submit');
+test('logout and redirect to the index page', async () => {
+  const history = createMemoryHistory({ initialEntries: ['/private'] });
 
-  // https://github.com/enzymejs/enzyme/issues/2073
-  await act(async () => {
-    await new Promise(resolve => setTimeout(resolve, 333));
-    wrapper.update();
+  let store = configureStore({
+    reducer: {
+      auth: authReducer
+    },
+    preloadedState: {
+      auth: {
+        isAuthenticated: true,
+        isPending: false,
+        user: u
+      }
+    }
   });
 
-  expect(history.location.pathname).toBe('/');
+  render(
+    <Provider store={ store }>
+      <Router history={ history }>
+        <App />
+      </Router>
+    </Provider>
+  );
 
-  expect(wrapper.text()).toContain("You're not logged in");
+  expect(screen.getByLabelText('logout')).toBeInTheDocument();
+
+  await user.click(screen.getByLabelText('logout'));
+
+  await waitFor(() => {
+    expect(history.location.pathname).toBe('/');
+
+    expect(screen.getByText(/You're not logged in/)).toBeInTheDocument();
+  });
 });

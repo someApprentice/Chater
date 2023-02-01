@@ -1,4 +1,5 @@
 module.exports = {
+  testEnvironment: 'jsdom',
   roots: ['<rootDir>'],
   transform: {
     "^.+\\.tsx?$": "ts-jest",
@@ -11,9 +12,10 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/', '/public/'],
   setupFilesAfterEnv: [
     '@testing-library/jest-dom/extend-expect',
-    '<rootDir>/setupTests.js',
+    '<rootDir>/jest.env.js', // https://github.com/prisma/prisma/issues/8558#issuecomment-1006100001
   ],
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
+  slowTestThreshold: 10
 }

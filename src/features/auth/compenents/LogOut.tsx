@@ -46,7 +46,7 @@ export default function LogOut() {
 
   return (
     <form onSubmit={ onSubmit }>
-      <Button type="submit" color='inherit'>
+      <Button type="submit" aria-label="logout" color='inherit'>
         { isPending ? <CircularProgress color="inherit"/> : <PowerSettingsNewIcon /> }
       </Button>
     </form>

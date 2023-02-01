@@ -1,10 +1,10 @@
 import React from 'react';
-import { act } from 'react-dom/test-utils';
 
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 
-import { createMount } from '@material-ui/core/test-utils';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { configureStore, nanoid } from '@reduxjs/toolkit';
 import { Provider, useSelector } from 'react-redux';
@@ -16,7 +16,7 @@ import { Router } from 'react-router';
 import { Switch, Route } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 
-import TextField from '@material-ui/core/TextField';
+import { UnauthenticatedRoute } from '../../../utils/router';
 
 import SignIn from './SignIn';
 
@@ -37,15 +37,15 @@ function App() {
           <>Index Page</>
         </Route>
 
-        <Route path='/login'>
+        <UnauthenticatedRoute path='/login'>
           <SignIn />
-        </Route>
+        </UnauthenticatedRoute>
       </Switch>
     </>
   );
 }
 
-let user: User = {
+let u: User = {
   id: nanoid(),
   email: 'name@chater.com',
   name: 'Name',
@@ -54,24 +54,25 @@ let user: User = {
 
 const server = setupServer(
   rest.post('/api/auth/login', (req, res, ctx) => {
-    return res(ctx.json(user));
+    return res(ctx.json(u));
   })
 );
 
 let store: ReturnType<typeof configureStore>;
-let mount: ReturnType<typeof createMount>;
+let user: ReturnType<typeof userEvent.setup>;
 
 beforeAll(() => {
   server.listen();
-  mount = createMount();
 });
 
 beforeEach(() => {
   store = configureStore({
     reducer: {
-      auth: authReducer
+      auth: authReducer,
     }
   });
+
+  user = userEvent.setup();
 });
 
 afterEach(() => {
@@ -79,14 +80,13 @@ afterEach(() => {
 });
 
 afterAll(() => {
-  mount.cleanUp();
   server.close();
 });
 
-test('authentication and redirect to the index page', async () => {
+test('SignIn rendering', async () => {
   const history = createMemoryHistory({ initialEntries: ['/login'] });
 
-  const wrapper = mount(
+  render(
     <Provider store={ store }>
       <Router history={ history }>
         <App />
@@ -94,40 +94,47 @@ test('authentication and redirect to the index page', async () => {
     </Provider>
   );
 
-  // https://stackoverflow.com/a/58061161/12948018
-  expect(wrapper.findWhere(node => !!node.name() && node.type() === 'h1' && node.text() === 'Sign In')).toHaveLength(1);
+  expect(screen.getByRole('heading', { name: 'Sign In' })).toBeInTheDocument();
+});
 
-  wrapper.find('input[name="email"]').simulate('change', { target: { name: 'email', value: user.email } });
-  wrapper.find('input[name="password"]').simulate('change', { target: { name: 'password', value: 'password' } });
+test('authentication and redirect to the index page', async () => {
+  const history = createMemoryHistory({ initialEntries: ['/login'] });
 
-  // https://github.com/enzymejs/enzyme/issues/308
-  // wrapper.find('button').simulate('click');
-  wrapper.find('button').simulate('submit');
+  render(
+    <Provider store={ store }>
+      <Router history={ history }>
+        <App />
+      </Router>
+    </Provider>
+  );
 
-  // https://github.com/enzymejs/enzyme/issues/2073
-  await act(async () => {
-    await new Promise(resolve => setTimeout(resolve, 333));
-    wrapper.update();
+  expect(screen.getByRole('heading', { name: 'Sign In' })).toBeInTheDocument();
+
+  await user.type(screen.getByLabelText(/^Email Address/), u.email);
+  await user.type(screen.getByLabelText(/^Password/), 'password');
+
+  await user.click(screen.getByRole('button', { name: 'Sign In' }));
+
+  await waitFor(() => {
+    expect(history.location.pathname).toBe('/');
+    expect(screen.getByText(`Welcome, ${ u.name }`, { exact: false })).toBeInTheDocument();
   });
-
-  expect(history.location.pathname).toBe('/');
-
-  expect(wrapper.text()).toContain(`Welcome, ${ user.name }`);
 });
 
 test('No matches found error',  async () => {
+  let text = 'No matches found';
   server.use(
     rest.post('/api/auth/login', (req, res, ctx) => {
       return res(
         ctx.status(404),
-        ctx.text('No matches found')
+        ctx.text(text)
       );
     })
   );
 
   const history = createMemoryHistory({ initialEntries: ['/login'] });
 
-  const wrapper = mount(
+  render(
     <Provider store={ store }>
       <Router history={ history }>
         <App />
@@ -135,21 +142,14 @@ test('No matches found error',  async () => {
     </Provider>
   );
 
-  // https://stackoverflow.com/a/58061161/12948018
-  expect(wrapper.findWhere(node => !!node.name() && node.type() === 'h1' && node.text() === 'Sign In')).toHaveLength(1);
+  expect(screen.getByRole('heading', { name: 'Sign In' })).toBeInTheDocument();
 
-  wrapper.find('input[name="email"]').simulate('change', { target: { name: 'email', value: user.email } });
-  wrapper.find('input[name="password"]').simulate('change', { target: { name: 'password', value: 'password' } });
+  await user.type(screen.getByLabelText(/^Email Address/), u.email);
+  await user.type(screen.getByLabelText(/^Password/), 'password');
 
-  // https://github.com/enzymejs/enzyme/issues/308
-  // wrapper.find('button').simulate('click');
-  wrapper.find('button').simulate('submit');
+  await user.click(screen.getByRole('button', { name: 'Sign In' }));
 
-  // https://github.com/enzymejs/enzyme/issues/2073
-  await act(async () => {
-    await new Promise(resolve => setTimeout(resolve, 333));
-    wrapper.update();
+  await waitFor(() => {
+    expect(screen.getByText(text, { exact: false })).toBeInTheDocument();
   });
-
-  expect(wrapper.find(TextField).at(1).props().helperText).toContain('No matches found');
 });

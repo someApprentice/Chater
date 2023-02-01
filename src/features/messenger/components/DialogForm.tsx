@@ -93,6 +93,7 @@ export default function DialogForm({ user, url, params }: DialogFormParams) {
   return (
     <form 
       ref={ formRef }
+      aria-label="message-form"
       className={ classes.messageForm }
       onSubmit={ formik.handleSubmit }
       onKeyUp={ (e) => {
@@ -109,7 +110,7 @@ export default function DialogForm({ user, url, params }: DialogFormParams) {
         required
         multiline
         fullWidth
-        rowsMax={ 1 }
+        maxRows={ 1 }
       />
 
       <div className={ classes.sendButtonWrapper }>

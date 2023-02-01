@@ -87,58 +87,60 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
   }
 }));
 
-const PublicDialog = forwardRef<HTMLUListElement, PropsWithChildren<DialogProps>>(function ({ dialog, messages, isMessagesPending, onScroll }: DialogProps, ref) {
-  const classes = useStyles();
+const PublicDialog = forwardRef<HTMLUListElement, PropsWithChildren<DialogProps>>(
+  function ({ dialog, messages, isMessagesPending, onScroll }: DialogProps, ref) {
+    const classes = useStyles();
 
-  let dispatch = useDispatch();
+    let dispatch = useDispatch();
 
-  let isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  let user = useSelector((state: RootState) => state.auth.user);
+    let isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+    let user = useSelector((state: RootState) => state.auth.user);
 
-  let authorIds = messages.reduce((acc, cur: Message) => {
-    if (acc.includes(cur.author)) {
-      return acc;
-    }
-
-    acc.push(cur.author);
-
-    return acc;
-  }, [] as string[]);
-
-  useEffect(() => {
-    if (!!authorIds.length) {
-      dispatch(getUsers({ ids: authorIds }));
-    }
-  }, [JSON.stringify(authorIds)]);
-
-  return (
-    <Container maxWidth="lg" className={ classes.container }>
-      <Paper elevation={ 3 } square className={ classes.header }>Public</Paper>
-
-      <div className={ clsx(classes.messagesWrapper, isMessagesPending && classes.isMessagesPending) }>
-        { isMessagesPending && !messages.length
-          ? <div className={ classes.spinner }><CircularProgress /></div>
-          : <>
-              <List ref={ ref } onScroll={ onScroll } className={ classes.messageList }>
-                { isMessagesPending && !!messages.length ? <div className={ classes.spinner }><CircularProgress /></div> : null }
-
-                { messages.map((message: Message) => (
-                  <MessageComponent key={ message.id } message={ message } />
-                )) }
-              </List>
-            </>
-        }
-      </div>
-
-      { isAuthenticated
-        ? <DialogForm user={ user! } url={ '/api/messenger/message/public' } />
-        : <div className={ clsx(classes.authenticationNote) }>
-            Please <Link component={ RouterLink } to="/login">Log In</Link> or <Link component={ RouterLink } to="/registration">Registrate</Link> to send a message.
-          </div>
+    let authorIds = messages.reduce((acc, cur: Message) => {
+      if (acc.includes(cur.author)) {
+        return acc;
       }
-    </Container>
-  );
-});
+
+      acc.push(cur.author);
+
+      return acc;
+    }, [] as string[]);
+
+    useEffect(() => {
+      if (!!authorIds.length) {
+        dispatch(getUsers({ ids: authorIds }));
+      }
+    }, [JSON.stringify(authorIds)]);
+
+    return (
+      <Container maxWidth="lg" className={ classes.container }>
+        <Paper elevation={ 3 } square className={ classes.header }>Public</Paper>
+
+        <div className={ clsx(classes.messagesWrapper, isMessagesPending && classes.isMessagesPending) }>
+          { isMessagesPending && !messages.length
+            ? <div className={ classes.spinner }><CircularProgress /></div>
+            : <>
+                <List ref={ ref } onScroll={ onScroll } className={ classes.messageList }>
+                  { isMessagesPending && !!messages.length ? <div className={ classes.spinner }><CircularProgress /></div> : null }
+
+                  { messages.map((message: Message) => (
+                    <MessageComponent key={ message.id } message={ message } />
+                  )) }
+                </List>
+              </>
+          }
+        </div>
+
+        { isAuthenticated
+          ? <DialogForm user={ user! } url={ '/api/messenger/message/public' } />
+          : <div className={ clsx(classes.authenticationNote) }>
+              Please <Link component={ RouterLink } to="/login">Log In</Link> or <Link component={ RouterLink } to="/registration">Registrate</Link> to send a message.
+            </div>
+        }
+      </Container>
+    );
+  }
+);
 
 export default withDialogData(
   PublicDialog,

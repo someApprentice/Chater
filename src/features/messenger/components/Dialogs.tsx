@@ -295,7 +295,7 @@ export default function Dialogs({
             placeholder="Search for users..."
             className={ classes.searchInput }
           />
-          <IconButton type="submit">
+          <IconButton aria-label="search" type="submit">
             <SearchIcon />
           </IconButton>
         </form>

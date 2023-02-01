@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { createMount } from '@material-ui/core/test-utils';
+import { render, screen } from '@testing-library/react';
 
 import { configureStore, nanoid } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
@@ -16,7 +16,6 @@ import { User } from '../models/user';
 import { AuthenticatedRoute, UnauthenticatedRoute } from './router';
 
 let store: ReturnType<typeof configureStore>;
-let mount: ReturnType<typeof createMount>;
 
 let user: User = {
   id: nanoid(),
@@ -25,20 +24,12 @@ let user: User = {
   hash: 'shhhh-secret'
 };
 
-beforeAll(() => {
-  mount = createMount();
-});
-
 beforeEach(() => {
   store = configureStore({
     reducer: {
       auth: authReducer
     }
   });
-});
-
-afterAll(() => {
-  mount.cleanUp();
 });
 
 test('authenticated route', () => {
@@ -71,7 +62,7 @@ test('authenticated route', () => {
     );
   }
 
-  const wrapper = mount(
+  render(
     <Provider store={ store }>
       <Router history={ history }>
         <App />
@@ -79,7 +70,7 @@ test('authenticated route', () => {
     </Provider>
   );
 
-  expect(wrapper.text()).toContain('Private Page');
+  expect(screen.getByText(/Private Page/)).toBeInTheDocument();
 
   store.dispatch(deauthenticate());
 
@@ -103,7 +94,7 @@ test('unauthenticated route', () => {
     );
   }
 
-  const wrapper = mount(
+  render(
     <Provider store={ store }>
       <Router history={ history }>
         <App />
@@ -111,7 +102,7 @@ test('unauthenticated route', () => {
     </Provider>
   );
 
-  expect(wrapper.text()).toContain('Unauthenticated Page');
+  expect(screen.getByText(/Unauthenticated Page/)).toBeInTheDocument();
 
   store.dispatch(authenticate(user));
 
