@@ -198,6 +198,7 @@ test('messages rendering', async () => {
   store.dispatch(pushMessage(message));
 
   await waitFor(() => {
+    expect(screen.getAllByText("Lorem ipsum dolor sit amet")).toHaveLength(20);
     expect(screen.getByText(message.content)).toBeInTheDocument();
   });
 });
