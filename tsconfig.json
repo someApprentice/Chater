@@ -23,5 +23,8 @@
   "include": [
     "src",
     "global.d.ts"
+  ],
+  "exclude": [
+    "./src/**/*.cy.tsx"
   ]
 }

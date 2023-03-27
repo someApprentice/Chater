@@ -34,7 +34,7 @@
   "scripts": {
     "build": "webpack -c webpack.client.config.js && webpack -c webpack.server.config.js",
     "watch": "webpack --watch -c webpack.client.config.js & webpack --watch -c webpack.server.config.js",
-    "test": "jest --verbose"
+    "test": "jest --verbose && cypress run --component"
   },
   "eslintConfig": {
     "extends": [
@@ -81,6 +81,7 @@
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^7.0.0",
     "css-loader": "^5.0.1",
+    "cypress": "^12.7.0",
     "dotenv": "^8.2.0",
     "dotenv-webpack": "^6.0.0",
     "html-webpack-plugin": "^5.0.0",
