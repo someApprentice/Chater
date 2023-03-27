@@ -58,6 +58,18 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     overflow: 'auto',
+    '&::-webkit-scrollbar': {
+      height: 0,
+      opacity: 0,
+      width: '0.375rem',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.2)',
+      borderRadius: '10px',
+      maxHeight: '12.5rem',
+      minHeight: '5rem',
+      opacity: 1,
+    }
   },
   messageForm: {
     [theme.breakpoints.up('lg')]: {
@@ -101,20 +113,32 @@ const PrivateDialog = forwardRef<HTMLUListElement, PropsWithChildren<DialogProps
 
   return (
     <Container maxWidth="lg" className={ classes.container }>
-      <Paper elevation={ 3 } square className={ classes.header }>{ party?.name }</Paper>
+      <Paper square className={ classes.header }>{ party?.name }</Paper>
 
       <div className={ clsx(classes.messagesWrapper, isMessagesPending && classes.isMessagesPending) }>
-        { isMessagesPending && !messages.length
-          ? <div className={ classes.spinner }><CircularProgress /></div>
-          : <>
-              <List ref={ ref } onScroll={ onScroll } className={ classes.messageList }>
-                { isMessagesPending && !!messages.length ? <div className={ classes.spinner }><CircularProgress /></div> : null }
+        {
+          isMessagesPending && !messages.length
+            ? <div className={ classes.spinner }><CircularProgress /></div>
+            : <>
+                <List ref={ ref } onScroll={ onScroll } className={ classes.messageList }>
+                  {
+                    isMessagesPending && !!messages.length
+                      ? <div className={ classes.spinner }><CircularProgress /></div>
+                      : null
+                  }
 
-                { messages.map((message: Message) => (
-                  <MessageComponent key={ message.id } message={ message } />
-                )) }
-              </List>
-            </>
+                  {
+                    messages.map((message: Message, i: number, arr: Message[]) => (
+                      <MessageComponent
+                        key={ message.id }
+                        message={ message }
+                        isLastInGroup={ i == arr.length - 1 || message.author != arr[i + 1].author }
+                        isSent={ message.author == user!.id  }
+                      />
+                    ))
+                  }
+                </List>
+              </>
         }
       </div>
 
