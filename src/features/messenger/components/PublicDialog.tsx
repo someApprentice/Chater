@@ -5,6 +5,7 @@ import { makeStyles, createStyles, useTheme, Theme } from '@material-ui/core/sty
 import clsx from 'clsx';
 
 import Container from '@material-ui/core/Container';
+import PublicIcon from '@material-ui/icons/Public';
 import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -34,15 +35,23 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
   },
   header: {
+    display: 'flex',
+    alignItems: 'center',
     padding: theme.spacing(2),
+    fontSize: '1rem'
+  },
+  avatar: {
+    minWidth: '56px'
+  },
+  name: {
   },
   messagesWrapper: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-end',
-    height: `calc(var(--vh, 1vh) * 100 - 64px - 52px - 80px)`, // screen size - header size - dialog header size - form size
+    height: `calc(var(--vh, 1vh) * 100 - 64px - 64.88px - 80px)`, // screen size - header size - dialog header size - form size
     [theme.breakpoints.up('lg')]: {
-      height: `calc(var(--vh, 1vh) * 100 - 64px - 52px - 112px)`, // screen size - header size - dialog header size - form size
+      height: `calc(var(--vh, 1vh) * 100 - 64px - 64.88px - 112px)`, // screen size - header size - dialog header size - form size
     }
   },
   isMessagesPending: {
@@ -126,7 +135,10 @@ const PublicDialog = forwardRef<HTMLUListElement, PropsWithChildren<DialogProps>
 
     return (
       <Container maxWidth="lg" className={ classes.container }>
-        <Paper square className={ classes.header }>Public</Paper>
+        <Paper variant='outlined' square className={ classes.header }>
+          <div className={ classes.avatar }><PublicIcon color='action' /></div>
+          <div className={ classes.name }>Public</div>
+        </Paper>
 
         <div className={ clsx(classes.messagesWrapper, isMessagesPending && classes.isMessagesPending) }>
           {
@@ -145,7 +157,8 @@ const PublicDialog = forwardRef<HTMLUListElement, PropsWithChildren<DialogProps>
                         <MessageComponent
                           key={ message.id }
                           message={ message }
-                          isLastInGroup={ i == arr.length - 1 || message.author != arr[i + 1].author }
+                          isFirst={ i == 0 || message.author != arr[i - 1].author }
+                          isLast={ i == arr.length - 1 || message.author != arr[i + 1].author }
                           isSent={ isAuthenticated && message.author == user!.id  }
                         />
                       ))

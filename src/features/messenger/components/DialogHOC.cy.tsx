@@ -14,7 +14,8 @@ import { Message } from '../../../models/message';
 let user: User = {
   id: nanoid(),
   email: 'name@chater.com',
-  name: 'Name'
+  name: 'Name',
+  avatar: 'data:image/png;base64,avatar=='
 };
 
 let dialog: Dialog = {

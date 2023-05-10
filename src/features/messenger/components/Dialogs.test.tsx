@@ -28,19 +28,22 @@ let u: User = {
   id: nanoid(),
   email: 'name@chater.com',
   name: 'Name',
-  hash: 'shhhh-secret'
+  hash: 'shhhh-secret',
+  avatar: 'data:image/png;base64,avatar=='
 };
 
 let tester: User = {
   id: nanoid(),
   email: 'tester@chater.com',
-  name: 'Tester'
+  name: 'Tester',
+  avatar: 'data:image/png;base64,avatar=='
 };
 
 let searched: User = {
   id: nanoid(),
   email: 'searched@chater.com',
-  name: 'Searched'
+  name: 'Searched',
+  avatar: 'data:image/png;base64,avatar=='
 };
 
 let users = [ u, tester, searched ];

@@ -23,13 +23,15 @@ import { Message } from '../../../models/message';
 let user: User = {
   id: nanoid(),
   email: 'name@chater.com',
-  name: 'Name'
+  name: 'Name',
+  avatar: 'data:image/png;base64,avatar=='
 };
 
 let tester: User = {
   id: nanoid(),
   email: 'tester@chater.com',
-  name: 'Tester'
+  name: 'Tester',
+  avatar: 'data:image/png;base64,avatar=='
 };
 
 let users: User[] = [ user, tester ];

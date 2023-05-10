@@ -5,6 +5,8 @@ import { nanoid } from '@reduxjs/toolkit';
 import store from './database/db';
 import { insert, find } from './database/slices/users';
 
+import { generate } from './avatar';
+
 import { User } from '../../src/models/user';
 
 export function push(user: User) {
@@ -21,11 +23,14 @@ export async function registrate(email: string, name: string, password: string):
 
   let id = nanoid();
 
+  let avatar =  await generate(250, 250, id);
+
   let user: User = {
     id,
     email,
     name,
-    hash: h
+    hash: h,
+    avatar
   };
   
   store.dispatch(insert(user));

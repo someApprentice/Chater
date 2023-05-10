@@ -30,7 +30,8 @@ let u: User = {
   id: nanoid(),
   email: 'name@chater.com',
   name: 'Name',
-  hash: 'shhhh-secret'
+  hash: 'shhhh-secret',
+  avatar: 'data:image/png;base64,avatar=='
 };
 
 let publicDialog: Dialog = {

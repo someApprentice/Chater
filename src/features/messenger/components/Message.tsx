@@ -1,5 +1,8 @@
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 
+import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar'
+import Avatar from '@material-ui/core/Avatar';
 import ListItemText from '@material-ui/core/ListItemText';
 
 import clsx from 'clsx';
@@ -14,15 +17,34 @@ import { Message } from '../../../models/message';
 export type MessageProps = {
   message: Message,
   isSent?: boolean,
-  isLastInGroup?: boolean
+  isFirst?: boolean,
+  isLast?: boolean
 };
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
   wrapper: {
-    'display': 'flex'
+    'display': 'flex',
+    paddingTop: 0,
+    paddingBottom: 0
   },
   message: {
+    display: 'flex',
+    flexDirection: 'column-reverse',
     maxWidth: '85%',
+  },
+  avatar: {
+    position: 'absolute',
+    left: 5,
+    width: '40px',
+    height: '40px',
+    minWidth: 'auto',
+    '& img': {
+      borderRadius: '50%',
+      width: 'inherit',
+      height: 'inherit'
+    }
+  },
+  bubble: {
     backgroundColor: '#e3f2fd',
     borderTopLeftRadius: '12px',
     borderTopRightRadius: '12px',
@@ -30,13 +52,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     borderBottomRightRadius: '12px',
     marginTop: '2px',
     marginBottom: '2px',
+    marginLeft: '35px',
     padding: '6px'
   },
   content: {
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
   },
-  isLastInGroup: {
+  isLast: {
     borderBottomLeftRadius: 0,
   },
   tail: {
@@ -46,19 +69,27 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     transform: 'translateY(1px)',
     width: '11px',
     marginTop: '-14px',
-    left: '7px',
+    left: '42px',
     right: 'auto'
   },
   isSent: {
     flexDirection: 'row-reverse',
-    '& $isLastInGroup': {
+    '& $avatar': {
+      left: 'auto',
+      right: 5
+    },
+    '& $bubble': {
+      marginLeft: 0,
+      marginRight: '35px'
+    },
+    '& $isLast': {
       borderBottomLeftRadius: '12px',
       borderBottomRightRadius: 0
     },
     '& $tail': {
       transform: 'translateY(1px) scaleX(-1)',
       left: 'auto',
-      right: '7px'
+      right: '42px'
     }
   }
 }));
@@ -67,7 +98,8 @@ export default function Message(
   {
     message,
     isSent = false,
-    isLastInGroup = false
+    isFirst = false,
+    isLast = false
   }: MessageProps
 ) {
   const classes = useStyles();
@@ -75,7 +107,7 @@ export default function Message(
   let author = useSelector((state: RootState) => state.users.users.find((user: User) => user.id === message.author));
 
   return (
-    <div
+    <ListItem
       className={
         clsx(
           classes.wrapper,
@@ -83,23 +115,37 @@ export default function Message(
         )
       }
     >
-      <div className={ clsx(classes.message, isLastInGroup && classes.isLastInGroup) }>
-        <ListItemText
-          primary={ author ? author.name : "Unknown" }
-          secondary={ message.content }
-          className={ classes.content }
-        />
-
+      <div className={ classes.message }>
         {
-          isLastInGroup
-            ? <svg viewBox="0 0 11 20" width="11" height="20" className={ classes.tail }>
-                <g transform="translate(9 -14)" fill="inherit" fillRule="evenodd">
-                  <path d="M-6 16h6v17c-.193-2.84-.876-5.767-2.05-8.782-.904-2.325-2.446-4.485-4.625-6.48A1 1 0 01-6 16z" transform="matrix(1 0 0 -1 0 49)" id="corner-fill" fill="inherit"></path>
-                </g>
-              </svg>
+          isLast
+            ? <ListItemAvatar className={ classes.avatar }>
+                <Avatar src={ author?.avatar } />
+              </ListItemAvatar>
             : null
         }
+
+        <div className={ clsx(classes.bubble, isLast && classes.isLast) }>
+          <ListItemText
+            primary={
+              isFirst
+                ? author ? author.name : "Unknown"
+                : null
+            }
+            secondary={ message.content }
+            className={ classes.content }
+          />
+
+          {
+            isLast
+              ? <svg viewBox="0 0 11 20" width="11" height="20" className={ classes.tail }>
+                  <g transform="translate(9 -14)" fill="inherit" fillRule="evenodd">
+                    <path d="M-6 16h6v17c-.193-2.84-.876-5.767-2.05-8.782-.904-2.325-2.446-4.485-4.625-6.48A1 1 0 01-6 16z" transform="matrix(1 0 0 -1 0 49)" id="corner-fill" fill="inherit"></path>
+                  </g>
+                </svg>
+              : null
+          }
+        </div>
       </div>
-    </div>
+    </ListItem>
   )
 }

@@ -4,6 +4,8 @@ import { hash } from 'argon2';
 
 import store from './services/database/db';
 
+import { generate } from './services/avatar';
+
 import { concat as concatUsers } from './services/database/slices/users';
 import { concat as concatDialogs } from './services/database/slices/dialogs';
 import { concat as concatMessages } from './services/database/slices/messages';
@@ -17,11 +19,16 @@ export async function populate() {
   let dialogs: Dialog[] = [] as Dialog[];
   let messages: Message[] = [] as Message[];
 
+  let id = nanoid();
+
+  let avatar = await generate(250, 250, id);
+
   let user: User = {
-    id: nanoid(),
+    id,
     email: 'user@chater.com',
     name: 'User',
-    hash: await hash('password')
+    hash: await hash('password'),
+    avatar
   };
   
   users.push(user);
@@ -95,11 +102,16 @@ export async function populate() {
   }
 
   for (let i = 0; i < 10; i++) {
+    let id = nanoid();
+
+    let avatar = await generate(250, 250, id);
+
     let u: User = {
-      id: nanoid(),
+      id,
       email: `u${ i }@chater.com`,
       name: `U${ i }`,
-      hash: await hash('password')
+      hash: await hash('password'),
+      avatar
     };
 
     users.push(u);

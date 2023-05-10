@@ -1,5 +1,8 @@
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 
+import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import Avatar from '@material-ui/core/Avatar';
 import ListItemText from '@material-ui/core/ListItemText';
 
 import { useSelector } from 'react-redux';
@@ -17,10 +20,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 export type DialogProps = {
-  dialog: Dialog
+  dialog: Dialog,
+  displayNames?: boolean,
 };
 
-export default function Dialog({ dialog }: DialogProps) {
+export default function Dialog({ dialog, displayNames = true }: DialogProps) {
   const classes = useStyles();
 
   let user = useSelector((state: RootState) => state.auth.user);
@@ -35,6 +39,16 @@ export default function Dialog({ dialog }: DialogProps) {
   });
 
   return (
-    <ListItemText primary={ party ? party.name : "Unknown" }  className={ classes.name }/>
+    <ListItem button>
+      <ListItemAvatar>
+        <Avatar src={ party?.avatar }/>
+      </ListItemAvatar>
+
+      {
+        displayNames
+          ? <ListItemText primary={ party ? party.name : "Unknown" }  className={ classes.name }/>
+          : null
+      }
+    </ListItem>
   );
 }

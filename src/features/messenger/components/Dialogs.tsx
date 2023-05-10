@@ -225,9 +225,11 @@ export default function Dialogs({
           className={ classes.publicDialogLink }
         >
           <ListItem button>
-              <ListItemIcon><PublicIcon /></ListItemIcon>
+              <ListItemIcon>
+                <PublicIcon />
+              </ListItemIcon>
 
-              { isOpen ? <ListItemText primary="Public Dialog" /> : null }
+              { isOpen ? <ListItemText primary="Public" /> : null }
           </ListItem>
         </Link>
       </List>
@@ -243,9 +245,7 @@ export default function Dialogs({
               color="inherit"
               key={ dialog.id }
             >
-              <ListItem button>
-                  <DialogComponent dialog={ dialog } />
-              </ListItem>
+              <DialogComponent dialog={ dialog } displayNames={ isOpen } />
             </Link>
           ))
         }
