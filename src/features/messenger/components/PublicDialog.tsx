@@ -66,8 +66,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     minHeight: 0,
     margin: 0,
     padding: 0,
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
     overflow: 'auto',
     '&::-webkit-scrollbar': {
       height: 0,
@@ -80,31 +78,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
       maxHeight: '12.5rem',
       minHeight: '5rem',
       opacity: 1,
-    }
-  },
-  messageForm: {
+    },
     [theme.breakpoints.up('lg')]: {
       padding: theme.spacing(2),
     }
-  },
-  sendButtonWrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  sendButton: {
-    margin: '6px 0',
-  },
-  sendButtonText: {
-    [theme.breakpoints.down('lg')]: {
-      display: 'none',
-    },
   },
   authenticationNote: {
     textAlign: 'center',
-    [theme.breakpoints.up('lg')]: {
-      padding: theme.spacing(2),
-    }
+    padding: theme.spacing(2),
   }
 }));
 
