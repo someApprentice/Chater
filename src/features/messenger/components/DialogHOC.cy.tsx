@@ -191,7 +191,7 @@ it('automatically scrolls down on a new message', () => {
   });
 });
 
-it('not scrolls down on a new message', () => {
+it('not scrolls down on a new message when overflow is scrolled up', () => {
   cy.mount(
     <Provider store={ store }>
       <App />
