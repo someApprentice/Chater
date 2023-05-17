@@ -15,7 +15,7 @@ https://github.com/someApprentice/Chater/assets/6327801/dc7c34e6-0133-47b7-9ae5-
 
 `npm run test`
 
-https://github.com/someApprentice/Chater/assets/6327801/24fa543d-a82e-455a-bb84-933f561e3e34
+https://github.com/someApprentice/Chater/assets/6327801/08423b87-7657-4c77-8ef1-b8ebb71ae161
 
 ## Особенности
 
