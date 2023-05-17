@@ -1,6 +1,6 @@
 # Chater
 
-Это простое чат приложение демонстрирующие навыки владения библиотекой React. В нём используются такие приёмы как High Order Components, State Management, Hooks, Server Side Rendering и другие.
+Это простое чат приложение демонстрирующие навыки владения библиотекой React. В нём используются такие приёмы как Strong Typing, State Management, Hooks, Server Side Rendering и другие.
 
 https://github.com/someApprentice/Chater/assets/6327801/dc7c34e6-0133-47b7-9ae5-b6554a9ee83b
 

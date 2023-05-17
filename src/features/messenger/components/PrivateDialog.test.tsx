@@ -193,7 +193,7 @@ test('PrivateDialog rendering', async () => {
   );
 
   await waitFor(() => {
-    expect(screen.getByText(tester.name)).toBeInTheDocument();
+    expect(screen.getByLabelText('dialog-header')).toBeInTheDocument();
   });
 });
 

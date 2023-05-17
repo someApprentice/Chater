@@ -21,7 +21,7 @@ import { Switch, Route, Link as RouterLink, RouteComponentProps } from 'react-ro
 import { useSelector, useDispatch } from 'react-redux';
 
 import { RootState } from './store';
-import { pushDialog, pushMessage, getPublicDialog } from './features/messenger/slice';
+import { pushDialog, pushMessage } from './features/messenger/slice';
 import { push as pushUser } from './features/users/slice';
 
 import { UnauthenticatedRoute, AuthenticatedRoute, RouteWithStatus } from './utils/router';
@@ -90,24 +90,11 @@ export default function App() {
   let isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   let user = useSelector((state: RootState) => state.auth.user);
 
-  let publicDialog = useSelector((state: RootState) => {
-    return state
-      .messenger
-      .dialogs
-      .find((dialog: Dialog) => dialog.type === 'public');
-  });
-
   let [ isOpen, setIsOpen ] = useState(!matches);
 
   useEffect(() => {
     setIsOpen(!matches);
   }, [matches]);
-
-  useEffect(() => {
-    if (!publicDialog) {
-      dispatch(getPublicDialog());
-    }
-  }, [!!publicDialog]);
 
   useEffect(() => {
     if (!!user) {
@@ -233,7 +220,7 @@ export default function App() {
 
         <Switch>
           <Route exact path="/">
-            <PublicDialog id={ publicDialog!.id } />
+            <PublicDialog />
           </Route>
 
           <AuthenticatedRoute

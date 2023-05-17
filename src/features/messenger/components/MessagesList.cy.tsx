@@ -1,11 +1,17 @@
 import React, { forwardRef, useEffect, PropsWithChildren } from 'react';
 
 import { configureStore, nanoid } from '@reduxjs/toolkit';
+
+import { useSelector, useDispatch } from 'react-redux';
 import { Provider } from 'react-redux';
 
-import messengerReducer, { pushMessage } from '../slice';
+import { RootState } from '../../../store';
 
-import withDialogData, { DialogProps } from './DialogHOC';
+import authReducer from '../../auth/slice';
+import usersReducer from '../../users/slice';
+import messengerReducer, { getMessages, pushMessage } from '../slice';
+
+import MessagesList from './MessagesList';
 
 import { User } from '../../../models/user';
 import { Dialog } from '../../../models/dialog';
@@ -48,31 +54,39 @@ for (let i = 0; i < 100; i++) {
   dialog.messages_count++;
 }
 
-const Dialog = withDialogData(forwardRef<HTMLUListElement, PropsWithChildren<DialogProps>>(
-  function ({ dialog, messages, isMessagesPending, onScroll }: DialogProps, ref) {
-
-    return (
-      <>
-        <h2>Dialog</h2>
-
-        <ul className="messages" ref={ ref } onScroll={ onScroll } style={ { height: '300px', overflow: 'auto' } }>
-          { messages.map((message: Message) => (
-            <li className="message" key={ message.id }>{ message.content }</li>
-          )) }
-        </ul>
-      </>
-    );
-  }
-));
-
 function App() {
+  let dispatch = useDispatch();
+
   let d = dialog;
+
+  let messages = useSelector((state: RootState) => {
+    return state
+    .messenger
+    .messages
+    .filter((message: Message) => {
+      return message.dialog === dialog?.id
+    })
+    .slice()
+    .sort((a: Message, b: Message) => a.date - b.date);
+  });
+
+  async function onScrollUp() {
+    let id = dialog!.id;
+
+    let date = messages[0].date;
+
+    await dispatch(getMessages({ id, date }));
+  }
 
   return (
     <>
       <h1>Chater</h1>
 
-      <Dialog id={ d.id } />
+      <MessagesList
+        messages={ messages }
+        total={ d.messages_count }
+        onScrollUp={ onScrollUp }
+      />
     </>
   );
 }
@@ -80,20 +94,6 @@ function App() {
 let store: ReturnType<typeof configureStore>;
 
 beforeEach(() => {
-  cy.intercept('GET', '/api/messenger/dialog*', (req) => {
-    let id = req.query.id; 
-
-    if (!id)
-      req.reply(400, 'Bad Request');
-
-    let d = dialogs.find(dialog => dialog.id == id);
-
-    if (!d)
-      req.reply(404, 'Dialog Not Found');
-
-    req.reply(d!);
-  });
-
   cy.intercept('GET', '/api/messenger/messages*', (req) => {
     let id = req.query.id;
     let date = req.query.date;
@@ -120,12 +120,18 @@ beforeEach(() => {
 
   store = configureStore({
     reducer: {
+      auth: authReducer,
+      users: usersReducer,
       messenger: messengerReducer
     },
     preloadedState: {
+      users: {
+        users: [ user ],
+        isPending: false
+      },
       messenger: {
         dialogs: [],
-        messages: [],
+        messages: m.slice(-20),
         isDialogPending: false,
         isDialogsPending: false,
         isMessagesPending: false,
@@ -144,19 +150,19 @@ it('Dialog rendering', () => {
     </Provider>
   );
 
-  cy.get('h2').should('have.text', 'Dialog');
+  cy.get('[aria-label=messages-list]').should('exist');
 });
 
-it('automatically scrolls down with a large number of messages', () => {
+it('automatically scrolls down on start-up', () => {
   cy.mount(
     <Provider store={ store }>
       <App />
     </Provider>
   );
 
-  cy.get('.message').its('length').should('eq', 20);
+  cy.get('[class*="messages"] [class*="message"]').its('length').should('eq', 20);
 
-  cy.get('.messages').then(el => {
+  cy.get('[class*="messages"] [class*="message"]').then(el => {
     let e  = el.get(0);
 
     expect(e.scrollTop).to.eq(e.scrollHeight - e.offsetHeight);
@@ -170,7 +176,7 @@ it('automatically scrolls down on a new message', () => {
     </Provider>
   );
 
-  cy.get('.message').its('length').should('eq', 20);
+  cy.get('[class*="messages"] [class*="message"]').its('length').should('eq', 20);
 
   let message: Message = {
     id: nanoid(),
@@ -182,9 +188,9 @@ it('automatically scrolls down on a new message', () => {
 
   cy.window().its('store').invoke('dispatch', pushMessage(message));
 
-  cy.get('.messages').should('contain', message.content);
+  cy.get('[class*="messages"]').should('contain', message.content);
   
-  cy.get('.messages').then(el => {
+  cy.get('[class*="messages"]').then(el => {
     let e  = el.get(0);
 
     expect(e.scrollTop).to.eq(e.scrollHeight - e.offsetHeight);
@@ -198,9 +204,9 @@ it('not scrolls down on a new message when overflow is scrolled up', () => {
     </Provider>
   );
 
-  cy.get('.message').its('length').should('eq', 20);
+  cy.get('[class*="messages"] [class*="message"]').its('length').should('eq', 20);
 
-  cy.get('.messages').scrollTo('0%', '80%');
+  cy.get('[class*="messages"]').scrollTo('0%', '80%');
 
   let message: Message = {
     id: nanoid(),
@@ -212,9 +218,9 @@ it('not scrolls down on a new message when overflow is scrolled up', () => {
 
   cy.window().its('store').invoke('dispatch', pushMessage(message));
 
-  cy.get('.messages').should('contain', message.content);
+  cy.get('[class*="messages"]').should('contain', message.content);
   
-  cy.get('.messages').then(el => {
+  cy.get('[class*="messages"]').then(el => {
     let e  = el.get(0);
 
     expect(e.scrollTop).to.not.eq(e.scrollHeight - e.offsetHeight);
@@ -228,9 +234,9 @@ it('rendering an old messages on scroll up', () => {
     </Provider>
   );
 
-  cy.get('.message').its('length').should('eq', 20);
+  cy.get('[class*="messages"] [class*="message"]').its('length').should('eq', 20);
 
-  cy.get('.messages').scrollTo('0%', '30%');
+  cy.get('[class*="messages"]').scrollTo('0%', '30%');
 
-  cy.get('.message').its('length').should('eq', 40);
+  cy.get('[class*="messages"] [class*="message"]').its('length').should('eq', 40);
 });

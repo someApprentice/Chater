@@ -1,26 +1,22 @@
-import { forwardRef, useEffect, PropsWithChildren } from 'react';
+import { useEffect } from 'react';
 
-import { makeStyles, createStyles, useTheme, Theme } from '@material-ui/core/styles';
-
-import clsx from 'clsx';
+import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
 import Avatar from '@material-ui/core/Avatar';
-import List from '@material-ui/core/List';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { useSelector, useDispatch } from 'react-redux';
 
 import { RootState } from '../../../store';
+import { getDialog, getMessages } from '../slice';
 import { getUsers } from '../../users/slice';
 
-import { User } from '../../../models/user';
+import { Dialog } from '../../../models/dialog';
 import { Message } from '../../../models/message';
+import { User } from '../../../models/user';
 
-import withDialogData, { DialogProps } from './DialogHOC';
-
-import MessageComponent from './Message';
+import MessagesList from './MessagesList';
 import DialogForm from './DialogForm';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -46,53 +42,51 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     height: '30px'
   },
   name: {
-  },
-  messagesWrapper: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    height: `calc(var(--vh, 1vh) * 100 - 64px - 64.88px - 80px)`, // screen size - header size - dialog header size - form size
-    [theme.breakpoints.up('lg')]: {
-      height: `calc(var(--vh, 1vh) * 100 - 64px - 64.88px - 112px)`, // screen size - header size - dialog header size - form size
-    }
-  },
-  isMessagesPending: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  spinner: {
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  messageList: {
-    minHeight: 0,
-    margin: 0,
-    padding: 0,
-    overflow: 'auto',
-    '&::-webkit-scrollbar': {
-      height: 0,
-      opacity: 0,
-      width: '0.375rem',
-    },
-    '&::-webkit-scrollbar-thumb': {
-      backgroundColor: 'rgba(0,0,0,.2)',
-      borderRadius: '10px',
-      maxHeight: '12.5rem',
-      minHeight: '5rem',
-      opacity: 1,
-    },
-    [theme.breakpoints.up('lg')]: {
-      padding: theme.spacing(2),
-    }
   }
 }));
 
-const PrivateDialog = forwardRef<HTMLUListElement, PropsWithChildren<DialogProps>>(function ({ dialog, messages, isMessagesPending, onScroll }: DialogProps, ref) {
+export type PrivateDialogProps = {
+  id: string
+};
+
+export default function PrivateDialog({ id }: PrivateDialogProps) {
   const classes = useStyles();
 
   let dispatch = useDispatch();
 
+  let dialog = useSelector((state: RootState) => {
+    return state
+      .messenger
+      .dialogs
+      .find((dialog: Dialog) => dialog.id === id);
+  });
+
+  let messages = useSelector((state: RootState) => {
+    return state
+      .messenger
+      .messages
+      .filter((message: Message) => {
+        return message.dialog === dialog?.id
+      })
+      .slice()
+      .sort((a: Message, b: Message) => a.date - b.date);
+  });
+
   let user = useSelector((state: RootState) => state.auth.user);
+
+  useEffect(() => {
+    if (!dialog) {
+      dispatch(getDialog({ id }));
+    }
+  }, [!!dialog]);
+
+  useEffect(() => {
+    if (dialog?.id && !messages.length) {
+      let id = dialog.id;
+
+      dispatch(getMessages({ id }));
+    }
+  }, [dialog?.id]);
 
   let party = useSelector((state: RootState) => {
     return state
@@ -107,46 +101,28 @@ const PrivateDialog = forwardRef<HTMLUListElement, PropsWithChildren<DialogProps
     }
   }, [!!dialog && JSON.stringify(dialog!.party!)]);
 
+  async function onScrollUp() {
+    let id = dialog!.id;
+
+    let date = messages[0].date;
+
+    await dispatch(getMessages({ id, date }));
+  }
+
   return (
     <Container maxWidth="lg" className={ classes.container }>
-      <Paper variant='outlined' square className={ classes.header }>
+      <Paper variant='outlined' square aria-label="dialog-header" className={ classes.header }>
         <div className={ classes.avatarWrapper }><Avatar src={ party?.avatar } className={ classes.avatar } /></div>
         <div className={ classes.name }>{ party?.name }</div>
       </Paper>
 
-      <div className={ clsx(classes.messagesWrapper, isMessagesPending && classes.isMessagesPending) }>
-        {
-          isMessagesPending && !messages.length
-            ? <div className={ classes.spinner }><CircularProgress /></div>
-            : <>
-                <List ref={ ref } onScroll={ onScroll } className={ classes.messageList }>
-                  {
-                    isMessagesPending && !!messages.length
-                      ? <div className={ classes.spinner }><CircularProgress /></div>
-                      : null
-                  }
-
-                  {
-                    messages.map((message: Message, i: number, arr: Message[]) => (
-                      <MessageComponent
-                        key={ message.id }
-                        message={ message }
-                        isFirst={ i == 0 || message.author != arr[i - 1].author }
-                        isLast={ i == arr.length - 1 || message.author != arr[i + 1].author }
-                        isSent={ message.author == user!.id  }
-                      />
-                    ))
-                  }
-                </List>
-              </>
-        }
-      </div>
+      <MessagesList
+        messages={ messages }
+        total={ dialog?.messages_count! }
+        onScrollUp={ onScrollUp }
+      /> 
 
       <DialogForm user={ user! } url={ '/api/messenger/message/private' }  params={ { id: dialog?.id } } />
     </Container>
   );
-});
-
-export default withDialogData(
-  PrivateDialog,
-);
+};

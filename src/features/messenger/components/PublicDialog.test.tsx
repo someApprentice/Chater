@@ -63,36 +63,18 @@ let messages: Message[] = [
 ];
 
 function App() {
-  let d = dialog;
-
   return (
     <>
       <h1>Chater</h1>
 
-      <PublicDialog id={ d.id } />
+      <PublicDialog />
     </>
   );
 }
 
 const server = setupServer(
-   rest.get('/api/messenger/dialog', (req, res, ctx) => {
-    let id = req.url.searchParams.get('id');
-
-    if (!id)
-      return res(
-        ctx.status(400),
-        ctx.text('Bad Request')
-      );
-
-    let d = dialogs.find(dialog => dialog.id == id);
-
-    if (!d)
-      return res(
-        ctx.status(404),
-        ctx.text('Dialog Not Found')
-      );
-
-    return res(ctx.json(d));
+   rest.get('/api/messenger/dialog/public', (req, res, ctx) => {
+    return res(ctx.json(dialog));
   }),
 
   rest.get('/api/messenger/messages/', (req, res, ctx) => {
@@ -190,7 +172,7 @@ test('PublicDialog rendering', async () => {
     </Provider>
   );
 
-  expect(screen.getByText('Public')).toBeInTheDocument();
+  expect(screen.getByLabelText('dialog-header')).toBeInTheDocument();
 });
 
 test('messages rendering', async () => {

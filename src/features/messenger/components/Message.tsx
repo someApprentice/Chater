@@ -16,9 +16,8 @@ import { Message } from '../../../models/message';
 
 export type MessageProps = {
   message: Message,
-  isSent?: boolean,
-  isFirst?: boolean,
-  isLast?: boolean
+  isFirstInGroup?: boolean,
+  isLastInGroup?: boolean
 };
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -59,7 +58,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
   },
-  isLast: {
+  isLastInGroup: {
     borderBottomLeftRadius: 0,
   },
   tail: {
@@ -82,7 +81,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
       marginLeft: 0,
       marginRight: '35px'
     },
-    '& $isLast': {
+    '& $isLastInGroup': {
       borderBottomLeftRadius: '12px',
       borderBottomRightRadius: 0
     },
@@ -97,37 +96,43 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 export default function Message(
   {
     message,
-    isSent = false,
-    isFirst = false,
-    isLast = false
+    isFirstInGroup = false,
+    isLastInGroup = false
   }: MessageProps
 ) {
   const classes = useStyles();
 
-  let author = useSelector((state: RootState) => state.users.users.find((user: User) => user.id === message.author));
+  let user = useSelector((state: RootState) => state.auth.user);
+
+  let author = useSelector((state: RootState) => (
+    state
+      .users
+      .users
+      .find((user: User) => user.id === message.author)
+  ));
 
   return (
     <ListItem
       className={
         clsx(
           classes.wrapper,
-          isSent && classes.isSent
+          message.author === user?.id && classes.isSent
         )
       }
     >
       <div className={ classes.message }>
         {
-          isLast
+          isLastInGroup
             ? <ListItemAvatar className={ classes.avatar }>
                 <Avatar src={ author?.avatar } />
               </ListItemAvatar>
             : null
         }
 
-        <div className={ clsx(classes.bubble, isLast && classes.isLast) }>
+        <div className={ clsx(classes.bubble, isLastInGroup && classes.isLastInGroup) }>
           <ListItemText
             primary={
-              isFirst
+              isFirstInGroup
                 ? author ? author.name : "Unknown"
                 : null
             }
@@ -136,7 +141,7 @@ export default function Message(
           />
 
           {
-            isLast
+            isLastInGroup
               ? <svg viewBox="0 0 11 20" width="11" height="20" className={ classes.tail }>
                   <g transform="translate(9 -14)" fill="inherit" fillRule="evenodd">
                     <path d="M-6 16h6v17c-.193-2.84-.876-5.767-2.05-8.782-.904-2.325-2.446-4.485-4.625-6.48A1 1 0 01-6 16z" transform="matrix(1 0 0 -1 0 49)" id="corner-fill" fill="inherit"></path>

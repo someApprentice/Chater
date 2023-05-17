@@ -253,6 +253,7 @@ test('authenticated state', () => {
   let store = configureStore({
     reducer: {
       auth: authReducer,
+      users: usersReducer,
       messenger: messengerReducer
     },
     preloadedState: {
