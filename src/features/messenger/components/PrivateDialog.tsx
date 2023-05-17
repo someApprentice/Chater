@@ -122,7 +122,7 @@ export default function PrivateDialog({ id }: PrivateDialogProps) {
         onScrollUp={ onScrollUp }
       /> 
 
-      <DialogForm user={ user! } url={ '/api/messenger/message/private' }  params={ { id: dialog?.id } } />
+      <DialogForm dialog={ dialog! } params={ { id: dialog?.id } } />
     </Container>
   );
 };

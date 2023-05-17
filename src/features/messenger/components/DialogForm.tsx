@@ -1,12 +1,10 @@
-import { useRef, RefObject } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import SendIcon from '@material-ui/icons/Send';
-
-import socket from '../../../services/socket';
 
 import { useSelector } from 'react-redux';
 
@@ -18,11 +16,10 @@ import axios, { AxiosResponse } from 'axios';
 
 import { RootState } from '../../../store';
 
-import { User } from '../../../models/user';
+import { Dialog } from '../../../models/dialog';
 
 export type DialogFormParams = {
-  user: User,
-  url: string,
+  dialog: Dialog,
   params?: {
     [key: string]: any
   }
@@ -55,10 +52,20 @@ const validationSchema = yup.object({
     .required('Content is required')
 });
 
-export default function DialogForm({ user, url, params }: DialogFormParams) {
+export default function DialogForm({ dialog, params = {} }: DialogFormParams) {
   const classes = useStyles();
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  let user = useSelector((state: RootState) => state.auth.user);
+
+  let [ url, setUrl ] = useState('');
+
+  useEffect(() => {
+    if (dialog) {
+      setUrl(`/api/messenger/message/${dialog.type}`);
+    }
+  }, [!!dialog]);
 
   const formik = useFormik({
     initialValues: {
@@ -76,7 +83,7 @@ export default function DialogForm({ user, url, params }: DialogFormParams) {
           },
           {
             headers: {
-              Authorization: `Bearer ${ user.hash }`
+              Authorization: `Bearer ${ user!.hash }`
             },
             params,
             withCredentials: true
@@ -119,7 +126,7 @@ export default function DialogForm({ user, url, params }: DialogFormParams) {
           variant="outlined"
           color="primary"
           className={ classes.sendButton }
-          disabled={ !formik.dirty || !formik.isValid }
+          disabled={ !dialog || !formik.dirty || !formik.isValid }
         >
           <span className={ classes.sendButtonText }>Send</span><SendIcon />
         </Button>

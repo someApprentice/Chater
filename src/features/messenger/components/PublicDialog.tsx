@@ -142,7 +142,7 @@ export default function PublicDialog() {
 
       {
         isAuthenticated
-          ? <DialogForm user={ user! } url={ '/api/messenger/message/public' } />
+          ? <DialogForm dialog={ dialog! } />
           : <div className={ clsx(classes.authenticationNote) }>
             Please <Link component={ RouterLink } to="/login">Log In</Link> or <Link component={ RouterLink } to="/registration">Registrate</Link> to send a message.
           </div>
