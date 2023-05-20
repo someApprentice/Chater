@@ -26,8 +26,9 @@ import DialogForm from './DialogForm';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
   container: {
-    // paddingTop: theme.spacing(4),
-    // paddingBottom: theme.spacing(4),
+    display: 'flex',
+    flexDirection: 'column',
+    height: 'calc(100% - 64px)', // 100% - body header size
     [theme.breakpoints.down('lg')]: {
       paddingRight: theme.spacing(2),
       paddingLeft: theme.spacing(2),
@@ -36,6 +37,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
   header: {
     display: 'flex',
     alignItems: 'center',
+    flex: '0 1 auto',
     padding: theme.spacing(2),
     fontSize: '1rem'
   },

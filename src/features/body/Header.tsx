@@ -21,10 +21,6 @@ import { drawerWidth } from '../messenger/components/Dialogs';
 import LogOut from '../auth/compenents/LogOut';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
-  title: {
-    flexGrow: 1,
-    overflow: 'hidden',
-  },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
@@ -45,7 +41,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
   },
   menuButtonHidden: {
     display: 'none',
-  }
+  },
+  title: {
+    flexGrow: 1,
+    overflow: 'hidden',
+  },
 }));
 
 export type HeaderParams = {

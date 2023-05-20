@@ -17,6 +17,8 @@ import { User } from '../../../models/user';
 import { Dialog } from '../../../models/dialog';
 import { Message } from '../../../models/message';
 
+import '../../../App.css';
+
 let user: User = {
   id: nanoid(),
   email: 'name@chater.com',
@@ -162,7 +164,7 @@ it('automatically scrolls down on start-up', () => {
 
   cy.get('[class*="messages"] [class*="message"]').its('length').should('eq', 20);
 
-  cy.get('[class*="messages"] [class*="message"]').then(el => {
+  cy.get('[aria-label=messages-list]').then(el => {
     let e  = el.get(0);
 
     expect(e.scrollTop).to.eq(e.scrollHeight - e.offsetHeight);
@@ -190,7 +192,7 @@ it('automatically scrolls down on a new message', () => {
 
   cy.get('[class*="messages"]').should('contain', message.content);
   
-  cy.get('[class*="messages"]').then(el => {
+  cy.get('[aria-label=messages-list]').then(el => {
     let e  = el.get(0);
 
     expect(e.scrollTop).to.eq(e.scrollHeight - e.offsetHeight);
@@ -206,7 +208,7 @@ it('not scrolls down on a new message when overflow is scrolled up', () => {
 
   cy.get('[class*="messages"] [class*="message"]').its('length').should('eq', 20);
 
-  cy.get('[class*="messages"]').scrollTo('0%', '80%');
+  cy.get('[aria-label=messages-list]').scrollTo('0%', '80%');
 
   let message: Message = {
     id: nanoid(),
@@ -220,7 +222,7 @@ it('not scrolls down on a new message when overflow is scrolled up', () => {
 
   cy.get('[class*="messages"]').should('contain', message.content);
   
-  cy.get('[class*="messages"]').then(el => {
+  cy.get('[aria-label=messages-list]').then(el => {
     let e  = el.get(0);
 
     expect(e.scrollTop).to.not.eq(e.scrollHeight - e.offsetHeight);
@@ -236,7 +238,7 @@ it('rendering an old messages on scroll up', () => {
 
   cy.get('[class*="messages"] [class*="message"]').its('length').should('eq', 20);
 
-  cy.get('[class*="messages"]').scrollTo('0%', '30%');
+  cy.get('[aria-label=messages-list]').scrollTo('0%', '30%');
 
   cy.get('[class*="messages"] [class*="message"]').its('length').should('eq', 40);
 });

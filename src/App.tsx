@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import CssBaseline from '@material-ui/core/CssBaseline';
 
-import { makeStyles, createStyles, useTheme, Theme } from '@material-ui/core/styles';
+import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 import { Helmet } from 'react-helmet';
@@ -27,20 +27,9 @@ import './App.css';
 
 const TITLE = process.env.TITLE;
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-  root: {
-    display: 'flex',
-  },
-  appBarSpacer: theme.mixins.toolbar,
-  content: {
-    flexGrow: 1,
-  },
-}));
-
 export default function App() {
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.down('lg'));
-  const classes = useStyles();
 
   let dispatch = useDispatch();
 
@@ -105,7 +94,7 @@ export default function App() {
   }
 
   return (
-    <div className={ classes.root }>
+    <>
       <Helmet>
         <title>{ TITLE }</title>
       </Helmet>
@@ -114,12 +103,13 @@ export default function App() {
 
       <Header isDialogsOpen={ isDialogsOpen } handleDialogsOpen={ handleDialogsOpen } />
 
-      { isAuthenticated
-        ? <Dialogs isOpen={ isDialogsOpen } handleDialogsClose={ handleDialogsClose } />
-        : null
+      {
+        isAuthenticated
+          ? <Dialogs isOpen={ isDialogsOpen } handleDialogsClose={ handleDialogsClose } />
+          : null
       }
 
       <Main />
-    </div>
+    </>
   );
 }

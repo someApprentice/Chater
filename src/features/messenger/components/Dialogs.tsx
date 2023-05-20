@@ -45,6 +45,18 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     position: 'relative',
     whiteSpace: 'nowrap',
     width: drawerWidth,
+    '&::-webkit-scrollbar': {
+      height: 0,
+      opacity: 0,
+      width: '0.375rem',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.2)',
+      borderRadius: '10px',
+      maxHeight: '12.5rem',
+      minHeight: '5rem',
+      opacity: 1,
+    },
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,

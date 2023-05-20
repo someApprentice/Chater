@@ -12,10 +12,12 @@ import PrivateDialog from '../messenger/components/PrivateDialog';
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
-  appBarSpacer: theme.mixins.toolbar,
   content: {
+    display: 'flex',
+    flexDirection: 'column',
     flexGrow: 1,
   },
+  appBarSpacer: theme.mixins.toolbar,
 }));
 
 export default function Main() {

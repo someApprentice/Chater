@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 
-import { makeStyles, createStyles, useTheme, Theme } from '@material-ui/core/styles';
+import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 
 import { useSelector } from 'react-redux';
 
@@ -16,50 +16,11 @@ import { Message } from '../../../models/message';
 import MessageComponent from './Message';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
-  container: {
-    // paddingTop: theme.spacing(4),
-    // paddingBottom: theme.spacing(4),
-    [theme.breakpoints.down('lg')]: {
-      paddingRight: theme.spacing(2),
-      paddingLeft: theme.spacing(2),
-    }
-  },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(2),
-    fontSize: '1rem'
-  },
-  avatarWrapper: {
-    minWidth: '56px'
-  },
-  avatar: {
-    width: '30px',
-    height: '30px'
-  },
-  name: {
-  },
   wrapper: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-end',
-    height: `calc(var(--vh, 1vh) * 100 - 64px - 64.88px - 80px)`, // screen size - header size - dialog header size - form size
-    [theme.breakpoints.up('lg')]: {
-      height: `calc(var(--vh, 1vh) * 100 - 64px - 64.88px - 112px)`, // screen size - header size - dialog header size - form size
-    }
-  },
-  isPending: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  spinner: {
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  messages: {
-    minHeight: 0,
-    margin: 0,
-    padding: 0,
+    flex: '1 1 auto',
     overflow: 'auto',
     '&::-webkit-scrollbar': {
       height: 0,
@@ -73,8 +34,22 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
       minHeight: '5rem',
       opacity: 1,
     },
+  },
+  isPending: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  spinner: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  messages: {
+    minHeight: 0,
+    margin: 0,
+    padding: 0,
     [theme.breakpoints.up('lg')]: {
-      padding: theme.spacing(2),
+      paddingRight: theme.spacing(2),
+      paddingLeft: theme.spacing(2),
     }
   }
 }));
@@ -92,13 +67,11 @@ export default function MessagesList({
 }: MessagesListProps) {
   const classes = useStyles();
 
-  const ref = useRef<HTMLUListElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   let [ isScrolledDown, setIsScrolledDown ] = useState(false);
     
   let isPending = useSelector((state: RootState) => state.messenger.isMessagesPending);
-
-  let user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
     if (ref.current && !!messages.length) {
@@ -144,6 +117,7 @@ export default function MessagesList({
   return (
     <div
       aria-label="messages-list"
+      ref={ ref } onScroll={ onScroll } 
       className={ clsx(
         classes.wrapper,
         isPending && classes.isPending
@@ -153,25 +127,25 @@ export default function MessagesList({
         isPending && !messages.length
           ? <div className={ classes.spinner }><CircularProgress /></div>
           : <>
-            <List ref={ ref } onScroll={ onScroll } className={ classes.messages }>
-              {
-                isPending && !!messages.length
-                  ? <div className={ classes.spinner }><CircularProgress /></div>
-                  : null
-              }
+              <List className={ classes.messages }>
+                {
+                  isPending && !!messages.length
+                    ? <div className={ classes.spinner }><CircularProgress /></div>
+                    : null
+                }
 
-              {
-                messages.map((message: Message, i: number, arr: Message[]) => (
-                  <MessageComponent
-                    key={ message.id }
-                    message={ message }
-                    isFirstInGroup={ i == 0 || message.author != arr[i - 1].author }
-                    isLastInGroup={ i == arr.length - 1 || message.author != arr[i + 1].author }
-                  />
-                ))
-              }
-            </List>
-          </>
+                {
+                  messages.map((message: Message, i: number, arr: Message[]) => (
+                    <MessageComponent
+                      key={ message.id }
+                      message={ message }
+                      isFirstInGroup={ i == 0 || message.author != arr[i - 1].author }
+                      isLastInGroup={ i == arr.length - 1 || message.author != arr[i + 1].author }
+                    />
+                  ))
+                }
+              </List>
+            </>
       }
     </div>
   )
