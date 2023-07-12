@@ -22,9 +22,6 @@ import Header from './features/body/Header';
 import Dialogs from './features/messenger/components/Dialogs';
 import Main from './features/body/Main';
 
-import './App.css';
-
-
 const TITLE = process.env.TITLE;
 
 export default function App() {
