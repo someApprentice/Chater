@@ -1,4 +1,4 @@
-# Chater
+# Chater | [Demo](https://chater.onrender.com/)
 
 Это простое чат приложение демонстрирующие навыки владения библиотекой React. В нём используются такие приёмы как Strong Typing, State Management, Hooks, Server Side Rendering и другие.
 
