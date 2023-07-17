@@ -4,6 +4,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
+import GitHubIcon from '@material-ui/icons/GitHub';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import Button from '@material-ui/core/Button';
@@ -46,6 +47,13 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     flexGrow: 1,
     overflow: 'hidden',
   },
+  github: {
+    display: 'flex',
+    alignItems: 'center',
+    '& svg': {
+      paddingRight: 6
+    },
+  }
 }));
 
 export type HeaderParams = {
@@ -79,11 +87,23 @@ export default function Header({ isDialogsOpen, handleDialogsOpen }: HeaderParam
 
           <Link
             component={ RouterLink }
-            to="/" color="inherit"
+            to="/"
+            color="inherit"
             className={ classes.title }
           >
             <Typography variant="h6" className={ classes.title }>Chater</Typography>
           </Link>
+
+          <Button
+            component={ Link }
+            target="_blank"
+            href="https://github.com/someApprentice/Chater/"
+            color="inherit"
+            className={ classes.github }
+          >
+            <GitHubIcon />
+            <Typography variant='button'>GitHub</Typography>
+          </Button>
 
           { !isAuthenticated
             ? <Link
