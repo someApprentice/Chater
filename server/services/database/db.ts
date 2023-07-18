@@ -1,5 +1,5 @@
-// For demonstration purposes, I have abstracted from database and
-// implemented Redux storage as an in-memory database.
+// For demonstration purposes, I decided not to use external databases
+// and implement a standalone in-memory database using Redux state as the storage.
 
 import { configureStore } from '@reduxjs/toolkit';
 
