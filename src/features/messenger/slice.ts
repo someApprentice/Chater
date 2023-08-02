@@ -218,6 +218,23 @@ const slice = createSlice({
         state.messages.push(message);
       }
     },
+    pushMessages(state: MessengerState, action: PayloadAction<Message[]>) {
+      let messages = action.payload;
+
+      messages.map((message: Message) => {
+        let found = !!state.messages.find((m: Message) => m.id === message.id);
+
+        if (found) {
+          let key = state.messages.findIndex((m: Message) => m.id === message.id);
+
+          state.messages[key] = message;
+        }
+
+        if (!found) {
+          state.messages.push(message);
+        }
+      });
+    },
     reset(state: MessengerState) {
       let publicDialog = state.dialogs.find((dialog: Dialog) => dialog.type === 'public')!;
 
@@ -384,4 +401,4 @@ const slice = createSlice({
 
 export default slice.reducer;
 
-export const { pushDialog, pushMessage, reset } = slice.actions;
+export const { pushDialog, pushMessage, pushMessages, reset } = slice.actions;

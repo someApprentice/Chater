@@ -9,7 +9,8 @@ import cookieParser from 'cookie-parser';
 
 import db from './services/database/db';
 import { find as findDialog } from './services/database/slices/dialogs';
-import { find as findUser } from './services/database/slices/users';
+import { select as selectMessages } from './services/database/slices/messages';
+import { find as findUser, select as selectUsers } from './services/database/slices/users';
 
 import { verify } from 'jsonwebtoken';
 
@@ -18,7 +19,7 @@ import { configureStore } from '@reduxjs/toolkit';
 
 import authReducer, { authenticate } from '../src/features/auth/slice';
 import usersReducer from '../src/features/users/slice';
-import messengerReducer, { pushDialog } from '../src/features/messenger/slice';
+import messengerReducer, { pushDialog, pushMessages } from '../src/features/messenger/slice';
 
 import { renderToString } from 'react-dom/server';
 
@@ -39,6 +40,7 @@ import serialize from 'serialize-javascript';
 
 import { User } from '../src/models/user';
 import { Dialog } from '../src/models/dialog';
+import { Message } from '../src/models/message';
 
 import * as yup from 'yup';
 
@@ -76,7 +78,10 @@ app.get('*', (req: Request, res: Response) => {
     dialog.type === 'public'
   ))!;
 
+  let publicMessages = selectMessages(db.getState(), (message: Message) => message.dialog == publicDialog.id);
+
   store.dispatch(pushDialog(publicDialog));
+  store.dispatch(pushMessages(publicMessages));
 
   if ('hash' in req.cookies) {
     let user: User;
