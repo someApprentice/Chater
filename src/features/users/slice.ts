@@ -88,6 +88,23 @@ const slice = createSlice({
   reducers: {
     push(state: UsersState, action: PayloadAction<User>) {
       state.users.push(action.payload);
+    },
+    pushUsers(state: UsersState, action: PayloadAction<User[]>) {
+      let users = action.payload;
+
+      users.map((user: User) => {
+        let found = !!state.users.find((u: User) => u.id === user.id);
+
+        if (found) {
+          let key = state.users.findIndex((u: User) => u.id === user.id);
+
+          state.users[key] = user;
+        }
+
+        if (!found) {
+          state.users.push(user);
+        }
+      });
     }
   },
   extraReducers: (builder) => {
@@ -155,4 +172,4 @@ const slice = createSlice({
 
 export default slice.reducer;
 
-export const { push } = slice.actions;
+export const { push, pushUsers } = slice.actions;

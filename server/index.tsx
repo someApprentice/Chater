@@ -18,7 +18,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 
 import authReducer, { authenticate } from '../src/features/auth/slice';
-import usersReducer from '../src/features/users/slice';
+import usersReducer, { pushUsers } from '../src/features/users/slice';
 import messengerReducer, { pushDialog, pushMessages } from '../src/features/messenger/slice';
 
 import { renderToString } from 'react-dom/server';
@@ -80,8 +80,13 @@ app.get('*', (req: Request, res: Response) => {
 
   let publicMessages = selectMessages(db.getState(), (message: Message) => message.dialog == publicDialog.id);
 
+  let publicDialogParticipants = selectUsers(db.getState(), (user: User) => {
+    return !!publicMessages.find((message: Message) => message.author == user.id)
+  });
+
   store.dispatch(pushDialog(publicDialog));
   store.dispatch(pushMessages(publicMessages));
+  store.dispatch(pushUsers(publicDialogParticipants));
 
   if ('hash' in req.cookies) {
     let user: User;
