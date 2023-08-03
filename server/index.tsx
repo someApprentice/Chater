@@ -49,6 +49,8 @@ import { populate } from './populate';
 const PORT = process.env.PORT || 8080;
 const SECRET = process.env.SECRET;
 
+const MESSAGES_COUNT = 40;
+
 const app = express();
 const server = createServer(app);
 
@@ -78,7 +80,12 @@ app.get('*', (req: Request, res: Response) => {
     dialog.type === 'public'
   ))!;
 
-  let publicMessages = selectMessages(db.getState(), (message: Message) => message.dialog == publicDialog.id);
+  let publicMessages = selectMessages(
+    db.getState(),
+    (message: Message) => message.dialog == publicDialog.id,
+    (a, b) => a.date - b.date,
+    MESSAGES_COUNT
+  );
 
   let publicDialogParticipants = selectUsers(db.getState(), (user: User) => {
     return !!publicMessages.find((message: Message) => message.author == user.id)
