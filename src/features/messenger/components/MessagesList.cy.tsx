@@ -17,8 +17,6 @@ import { User } from '../../../models/user';
 import { Dialog } from '../../../models/dialog';
 import { Message } from '../../../models/message';
 
-import '../../../App.css';
-
 let user: User = {
   id: nanoid(),
   email: 'name@chater.com',
