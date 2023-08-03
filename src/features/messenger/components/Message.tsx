@@ -50,13 +50,15 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     borderBottomLeftRadius: '12px',
     borderBottomRightRadius: '12px',
     marginTop: '2px',
-    marginBottom: '2px',
     marginLeft: '35px',
     padding: '6px'
   },
   content: {
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
+  },
+  isFirstInGroup: {
+    marginTop: '6px'
   },
   isLastInGroup: {
     borderBottomLeftRadius: 0,
@@ -129,7 +131,7 @@ export default function Message(
             : null
         }
 
-        <div className={ clsx(classes.bubble, isLastInGroup && classes.isLastInGroup) }>
+        <div className={ clsx(classes.bubble, isFirstInGroup && classes.isFirstInGroup, isLastInGroup && classes.isLastInGroup) }>
           <ListItemText
             primary={
               isFirstInGroup
