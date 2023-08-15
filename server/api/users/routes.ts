@@ -54,7 +54,7 @@ router.get('/search', (req: Request, res: Response) => {
   if (!query)
     return res.status(400).send('Bad Request');
 
-  let users = select(store.getState(), (user: User) => user.name.includes(query)); 
+  let users = select(store.getState(), (user: User) => user.name.toLowerCase().includes(query.toLowerCase())); 
 
   let us = users.map((user: User) => {
     // omit hash property
